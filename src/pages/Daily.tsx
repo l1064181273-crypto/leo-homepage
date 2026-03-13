@@ -4,52 +4,60 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ParticleBackground from "@/components/ParticleBackground";
 
+import daily1 from "@/assets/daily-1.jpg";
+import daily2 from "@/assets/daily-2.jpg";
+import daily3 from "@/assets/daily-3.jpg";
+import daily4 from "@/assets/daily-4.jpg";
+import daily5 from "@/assets/daily-5.jpg";
+import daily6 from "@/assets/daily-6.jpg";
+import daily7 from "@/assets/daily-7.jpg";
+
 const photos = [
   {
     id: 1,
-    url: "/src/assets/daily-1.jpg",
+    url: daily1,
     caption: "和朋友们的出行 🚴‍♂️",
     location: "Cycling",
     size: "large"
   },
   {
     id: 2,
-    url: "/src/assets/daily-2.jpg",
+    url: daily2,
     caption: "老君山上吃泡面 🍝",
     location: "Mountain",
     size: "medium"
   },
   {
     id: 3,
-    url: "/src/assets/daily-3.jpg",
+    url: daily3,
     caption: "妹妹弹古筝给我听 🎶",
     location: "Music",
     size: "small"
   },
   {
     id: 4,
-    url: "/src/assets/daily-4.jpg",
+    url: daily4,
     caption: "深夜的实验室 🧪",
     location: "Lab",
     size: "medium"
   },
   {
     id: 5,
-    url: "/src/assets/daily-5.jpg",
+    url: daily5,
     caption: "西岛两日游 🥽",
     location: "Travel",
     size: "small"
   },
   {
     id: 6,
-    url: "/src/assets/daily-6.jpg",
+    url: daily6,
     caption: "朋友赠书 📚",
     location: "Reading",
     size: "large"
   },
   {
     id: 7,
-    url: "/src/assets/daily-7.jpg",
+    url: daily7,
     caption: "可爱的小狗 🐕",
     location: "Pet",
     size: "medium"
