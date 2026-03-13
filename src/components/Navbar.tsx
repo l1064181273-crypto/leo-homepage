@@ -31,7 +31,7 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/60 border-b border-border">
       <div className="container mx-auto max-w-6xl flex items-center justify-between h-16 px-8">
-        <Link to="/" className="font-heading text-sm font-medium tracking-widest warm-highlight">
+        <Link to="/" className="font-rounded text-sm font-bold tracking-widest text-orange-200 bg-orange-500/20 px-4 py-2 rounded-full hover:bg-orange-500/30 transition-colors">
           Leo_homepage
         </Link>
 
@@ -46,7 +46,7 @@ const Navbar = () => {
                 key={l.href}
                 href={target}
                 onClick={(e) => handleScroll(e, target)}
-                className="font-heading text-sm font-medium tracking-widest warm-highlight hover:text-foreground transition-colors cursor-pointer"
+                className="font-rounded text-sm font-bold tracking-widest text-orange-200 bg-orange-500/20 px-4 py-2 rounded-full hover:bg-orange-500/30 transition-colors cursor-pointer"
               >
                 {l.label}
               </a>
@@ -54,7 +54,7 @@ const Navbar = () => {
               <Link
                 key={l.href}
                 to={target}
-                className="font-heading text-sm font-medium tracking-widest warm-highlight hover:text-foreground transition-colors"
+                className="font-rounded text-sm font-bold tracking-widest text-orange-200 bg-orange-500/20 px-4 py-2 rounded-full hover:bg-orange-500/30 transition-colors"
               >
                 {l.label}
               </Link>
@@ -91,7 +91,7 @@ const Navbar = () => {
                     key={l.href}
                     href={target}
                     onClick={(e) => handleScroll(e, target)}
-                    className="font-heading text-sm font-medium tracking-widest warm-highlight hover:text-foreground transition-colors cursor-pointer"
+                    className="font-rounded text-sm font-bold tracking-widest text-orange-200 bg-orange-500/20 px-4 py-2 rounded-full hover:bg-orange-500/30 transition-colors cursor-pointer"
                   >
                     {l.label}
                   </a>
@@ -100,7 +100,7 @@ const Navbar = () => {
                     key={l.href}
                     to={target}
                     onClick={() => setOpen(false)}
-                    className="font-heading text-sm font-medium tracking-widest warm-highlight hover:text-foreground transition-colors"
+                    className="font-rounded text-sm font-bold tracking-widest text-orange-200 bg-orange-500/20 px-4 py-2 rounded-full hover:bg-orange-500/30 transition-colors"
                   >
                     {l.label}
                   </Link>

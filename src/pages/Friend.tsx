@@ -1,21 +1,100 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Send, ArrowLeft, Sparkles, QrCode } from "lucide-react";
+import { 
+  Send, ArrowLeft, Sparkles, QrCode, 
+  Code, Palette, Music, Plane, Book, Camera, Gamepad2, Coffee, Dog, Film,
+  Briefcase, MessageCircle, Share2, Heart, Check
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ParticleBackground from "@/components/ParticleBackground";
 import wechatQr from "@/assets/wechat-qr.jpg";
 
+const interestsList = [
+  { id: "tech", label: "科技 & 编程", icon: Code, colorClass: "text-cyan-400", bgClass: "bg-cyan-500/20", borderClass: "border-cyan-500" },
+  { id: "design", label: "设计 & 艺术", icon: Palette, colorClass: "text-pink-400", bgClass: "bg-pink-500/20", borderClass: "border-pink-500" },
+  { id: "music", label: "音乐", icon: Music, colorClass: "text-violet-400", bgClass: "bg-violet-500/20", borderClass: "border-violet-500" },
+  { id: "travel", label: "旅行探索", icon: Plane, colorClass: "text-emerald-400", bgClass: "bg-emerald-500/20", borderClass: "border-emerald-500" },
+  { id: "reading", label: "阅读 & 写作", icon: Book, colorClass: "text-amber-400", bgClass: "bg-amber-500/20", borderClass: "border-amber-500" },
+  { id: "photo", label: "摄影", icon: Camera, colorClass: "text-rose-400", bgClass: "bg-rose-500/20", borderClass: "border-rose-500" },
+  { id: "game", label: "游戏", icon: Gamepad2, colorClass: "text-purple-400", bgClass: "bg-purple-500/20", borderClass: "border-purple-500" },
+  { id: "coffee", label: "咖啡 & 美食", icon: Coffee, colorClass: "text-orange-400", bgClass: "bg-orange-500/20", borderClass: "border-orange-500" },
+  { id: "pet", label: "小猫 & 小狗", icon: Dog, colorClass: "text-yellow-400", bgClass: "bg-yellow-500/20", borderClass: "border-yellow-500" },
+  { id: "movie", label: "追剧", icon: Film, colorClass: "text-red-400", bgClass: "bg-red-500/20", borderClass: "border-red-500" },
+];
+
+const purposesList = [
+  { 
+    id: "collab", 
+    label: "项目合作", 
+    desc: "一起做点有趣的事", 
+    icon: Briefcase,
+    activeClass: "bg-blue-500/10 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]",
+    iconActiveClass: "bg-blue-500 text-white",
+    textActiveClass: "text-blue-100",
+    subTextActiveClass: "text-blue-200/70",
+    checkColorClass: "text-blue-500"
+  },
+  { 
+    id: "chat", 
+    label: "日常交流", 
+    desc: "聊聊生活与想法", 
+    icon: MessageCircle,
+    activeClass: "bg-green-500/10 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.2)]",
+    iconActiveClass: "bg-green-500 text-white",
+    textActiveClass: "text-green-100",
+    subTextActiveClass: "text-green-200/70",
+    checkColorClass: "text-green-500"
+  },
+  { 
+    id: "share", 
+    label: "经验分享", 
+    desc: "互相学习成长", 
+    icon: Share2,
+    activeClass: "bg-indigo-500/10 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]",
+    iconActiveClass: "bg-indigo-500 text-white",
+    textActiveClass: "text-indigo-100",
+    subTextActiveClass: "text-indigo-200/70",
+    checkColorClass: "text-indigo-500"
+  },
+  { 
+    id: "friend", 
+    label: "纯粹交友", 
+    desc: "认识新朋友", 
+    icon: Heart,
+    activeClass: "bg-rose-500/10 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]",
+    iconActiveClass: "bg-rose-500 text-white",
+    textActiveClass: "text-rose-100",
+    subTextActiveClass: "text-rose-200/70",
+    checkColorClass: "text-rose-500"
+  },
+];
+
 const Friend = () => {
-  const [name, setName] = useState("");
-  const [wechat, setWechat] = useState("");
-  const [intro, setIntro] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    contact: "",
+    intro: ""
+  });
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedPurposes, setSelectedPurposes] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
+
+  const toggleInterest = (id: string) => {
+    setSelectedInterests(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const togglePurpose = (id: string) => {
+    setSelectedPurposes(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to a backend
-    console.log({ name, wechat, intro });
+    console.log({ ...formData, selectedInterests, selectedPurposes });
     setSubmitted(true);
   };
 
@@ -31,160 +110,220 @@ const Friend = () => {
       
       <Navbar />
       
-      <main className="relative z-10 container mx-auto px-8 pt-32 pb-16 max-w-5xl flex flex-col items-center justify-center min-h-screen">
+      <main className="relative z-10 container mx-auto px-4 md:px-8 pt-32 pb-16 max-w-4xl min-h-screen">
         <a 
           href="/#connect"
-          className="absolute top-24 left-8 md:left-auto md:right-full md:mr-8 inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors py-2 px-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10"
+          className="absolute top-24 left-4 md:left-0 inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors py-2 px-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="hidden md:inline">返回首页</span>
         </a>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-          {/* Left Column: Form */}
-          <motion.div 
-            className="glass-card p-8 md:p-12 w-full relative overflow-hidden h-full flex flex-col justify-center"
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* Decorative background elements */}
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-center mb-10"
-            >
-              <div className="inline-flex items-center justify-center p-3 rounded-full bg-orange-500/10 text-orange-500 mb-6">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <h1 className="font-heading text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-orange-400 via-amber-200 to-orange-400 bg-clip-text text-transparent bg-300% animate-gradient">
-                交个朋友
-              </h1>
-              <p className="text-muted-foreground leading-relaxed max-w-md mx-auto">
-                很高兴遇见你！留下你的联系方式，让我们开启一段有趣的对话。
-              </p>
-            </motion.div>
-
-            {submitted ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-primary/10 border border-primary/20 rounded-2xl p-8 text-center"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
-                  <Send className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-heading font-bold mb-3 text-white">信息已发送！</h3>
-                <p className="text-muted-foreground mb-6">
-                  谢谢你的信任，我会尽快通过微信联系你。
-                </p>
-                <Link 
-                  to="/"
-                  className="inline-flex items-center text-primary hover:text-primary/80 transition-colors font-medium"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  返回首页
-                </Link>
-              </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground font-mono ml-1">
-                    怎么称呼你
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all hover:bg-black/30"
-                    placeholder="你的名字"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground font-mono ml-1">
-                    微信号 / 手机号
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={wechat}
-                    onChange={(e) => setWechat(e.target.value)}
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all hover:bg-black/30"
-                    placeholder="方便我添加你"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground font-mono ml-1">
-                    简单介绍一下（选填）
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={intro}
-                    onChange={(e) => setIntro(e.target.value)}
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-none hover:bg-black/30"
-                    placeholder="比如你的兴趣、职业，或者想聊的话题..."
-                  />
-                </div>
-
-                <motion.button
-                  type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 transition-all duration-300 relative overflow-hidden group"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                  <Send className="w-5 h-5" />
-                  <span className="relative">发送给 Leo</span>
-                </motion.button>
-              </form>
-            )}
-          </motion.div>
-
-          {/* Right Column: QR Code */}
-          <motion.div 
-            className="glass-card p-8 md:p-12 w-full relative overflow-hidden flex flex-col items-center justify-center text-center"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="inline-flex items-center justify-center p-3 rounded-full bg-green-500/10 text-green-500 mb-6">
-              <QrCode className="w-6 h-6" />
-            </div>
-            <h2 className="font-heading text-2xl font-bold mb-2 text-white">
-              扫码加微信
-            </h2>
-            <p className="text-muted-foreground mb-8 text-sm">
-              也可以直接扫描下方二维码添加我的微信
-            </p>
-
-            <motion.div 
-              className="relative p-2 bg-white rounded-2xl shadow-xl max-w-[280px]"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <img 
-                src={wechatQr} 
-                alt="WeChat QR Code" 
-                className="w-full h-auto rounded-xl"
-              />
-              <div className="absolute inset-0 border-4 border-white/50 rounded-2xl pointer-events-none" />
-            </motion.div>
-            
-            <p className="mt-6 font-mono text-sm text-green-400 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20">
-              WeChat ID: Leo_AI_Trainer
-            </p>
-          </motion.div>
+        <div className="flex flex-col items-center justify-center mb-12 text-center">
+          <div className="inline-flex items-center justify-center p-3 rounded-full bg-orange-500/10 text-orange-500 mb-6">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-orange-400 via-amber-200 to-orange-400 bg-clip-text text-transparent bg-300% animate-gradient">
+            交个朋友
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-lg">
+            填写下方信号发射器，让我们建立连接
+          </p>
         </div>
+
+        {submitted ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass-card p-12 text-center max-w-xl mx-auto"
+          >
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-orange-500/20">
+              <Send className="w-10 h-10 text-white" />
+            </div>
+            <h3 className="text-3xl font-heading font-bold mb-4 text-white">信号已发射！</h3>
+            <p className="text-muted-foreground mb-8 text-lg">
+              感谢你的来信，我会尽快通过微信与你取得联系。
+            </p>
+            
+            <div className="flex flex-col items-center gap-6 p-6 bg-black/20 rounded-2xl border border-white/5 mb-8">
+               <p className="text-sm text-muted-foreground">或者直接扫描二维码添加</p>
+               <img src={wechatQr} alt="WeChat QR" className="w-32 h-32 rounded-lg border-2 border-white/10" />
+            </div>
+
+            <Link 
+              to="/"
+              className="inline-flex items-center text-primary hover:text-primary/80 transition-colors font-medium text-lg"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              返回地球
+            </Link>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Module 01: Identity */}
+            <motion.div 
+              className="glass-card p-6 md:p-8"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 font-mono font-bold text-lg">01</div>
+                <div>
+                  <h3 className="text-xl font-heading font-bold text-orange-100">身份识别</h3>
+                  <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Identity Verification</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground ml-1">怎么称呼你</label>
+                  <input
+                    required
+                    type="text"
+                    value={formData.name}
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-orange-500/50 focus:bg-orange-500/5 transition-all"
+                    placeholder="你的名字 / ID"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground ml-1">联系方式</label>
+                  <input
+                    required
+                    type="text"
+                    value={formData.contact}
+                    onChange={e => setFormData({...formData, contact: e.target.value})}
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-orange-500/50 focus:bg-orange-500/5 transition-all"
+                    placeholder="微信号 / 手机号 / 邮箱"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Module 02: Interests */}
+            <motion.div 
+              className="glass-card p-6 md:p-8"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-mono font-bold text-lg">02</div>
+                <div>
+                  <h3 className="text-xl font-heading font-bold text-purple-100">共同兴趣</h3>
+                  <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Common Interests (Multi-select)</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {interestsList.map((item) => {
+                  const isSelected = selectedInterests.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => toggleInterest(item.id)}
+                      className={`cursor-pointer flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                        isSelected 
+                          ? `${item.bgClass} ${item.borderClass} ${item.colorClass}` 
+                          : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      <div className={`p-1.5 rounded-md ${isSelected ? item.bgClass : "bg-black/20"}`}>
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </motion.div>
+
+            {/* Module 03: Purpose */}
+            <motion.div 
+              className="glass-card p-6 md:p-8"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-mono font-bold text-lg">03</div>
+                <div>
+                  <h3 className="text-xl font-heading font-bold text-blue-100">连接目的</h3>
+                  <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Connection Purpose (Multi-select)</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {purposesList.map((item) => {
+                  const isSelected = selectedPurposes.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => togglePurpose(item.id)}
+                      className={`cursor-pointer relative p-5 rounded-xl border transition-all duration-200 flex items-start gap-4 group ${
+                        isSelected 
+                          ? item.activeClass 
+                          : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      <div className={`p-3 rounded-lg transition-colors ${
+                        isSelected ? item.iconActiveClass : "bg-white/10 text-muted-foreground group-hover:text-white"
+                      }`}>
+                        <item.icon className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className={`font-bold mb-1 ${isSelected ? item.textActiveClass : "text-foreground"}`}>
+                          {item.label}
+                        </h4>
+                        <p className={`text-sm ${isSelected ? item.subTextActiveClass : "text-muted-foreground"}`}>
+                          {item.desc}
+                        </p>
+                      </div>
+                      {isSelected && (
+                        <div className={`absolute top-4 right-4 ${item.checkColorClass}`}>
+                          <Check className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </motion.div>
+
+            {/* Module 04: Message (Optional) */}
+            <motion.div 
+              className="glass-card p-6 md:p-8"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground ml-1">补充信息（选填）</label>
+                  <textarea
+                    rows={3}
+                    value={formData.intro}
+                    onChange={e => setFormData({...formData, intro: e.target.value})}
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-orange-500/50 focus:bg-orange-500/5 transition-all resize-none"
+                    placeholder="想聊的具体话题..."
+                  />
+              </div>
+            </motion.div>
+
+            <motion.button
+              type="submit"
+              className="w-full py-5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold text-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 transition-all duration-300 relative overflow-hidden group"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              <span className="relative flex items-center justify-center gap-3">
+                发送信号 <Send className="w-5 h-5" />
+              </span>
+            </motion.button>
+
+          </form>
+        )}
       </main>
     </motion.div>
   );

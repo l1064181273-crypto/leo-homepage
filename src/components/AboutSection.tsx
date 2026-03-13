@@ -1,33 +1,57 @@
 import { motion } from "framer-motion";
-import { Coffee, BookOpen, Camera, Gamepad2 } from "lucide-react";
+import { Coffee, BookOpen, Camera, Gamepad2, Music, Film, Utensils } from "lucide-react";
 import { Link } from "react-router-dom";
+import PlanetIcon from "./PlanetIcon";
+import TitlePlanet from "./TitlePlanet";
 
 const interests = [
   {
     icon: Coffee,
     title: "日常",
     desc: "热爱生活，享受每一杯咖啡的香气，记录生活中的点滴美好。",
-    link: "/daily"
+    link: "/daily",
+    type: "daily"
+  },
+  {
+    icon: Music,
+    title: "音乐",
+    desc: "在旋律中寻找共鸣，用音符治愈心灵，探索不同风格的乐章。",
+    type: "music"
   },
   {
     icon: BookOpen,
     title: "学习",
     desc: "保持好奇心，持续探索 AI 与前沿技术，终身学习者。",
-    link: "/study"
+    link: "/study",
+    type: "study"
+  },
+  {
+    icon: Film,
+    title: "电影",
+    desc: "体验百态人生，感受光影魅力，在银幕故事中思考与感悟。",
+    type: "film"
   },
   {
     icon: Camera,
     title: "摄影",
     desc: "用镜头捕捉光影，定格瞬间的感动，发现平凡中的不凡。",
-    link: "/photography"
+    link: "/photography",
+    type: "photo"
+  },
+  {
+    icon: Utensils,
+    title: "美食",
+    desc: "寻觅街头巷尾的味道，用味蕾记录城市，享受烹饪与分享的快乐。",
+    type: "food"
   },
   {
     icon: Gamepad2,
     title: "游戏",
     desc: "在虚拟世界中冒险，体验第九艺术的魅力，寻找灵感与快乐。",
-    link: "/gaming"
+    link: "/gaming",
+    type: "game"
   }
-];
+] as const;
 
 const container = {
   hidden: {},
@@ -50,12 +74,9 @@ const AboutSection = () => {
       variants={container}
     >
       <div className="container mx-auto max-w-6xl">
-        <motion.h2 
-          className="section-title mb-16 text-center font-serif text-2xl md:text-3xl font-bold tracking-wide text-indigo-300 drop-shadow-[0_0_10px_rgba(165,180,252,0.3)]" 
-          variants={item}
-        >
-          关于我
-        </motion.h2>
+        <motion.div variants={item} className="mb-24 text-center">
+          <TitlePlanet />
+        </motion.div>
 
         <div className="relative mb-16">
           <div className="absolute left-4 lg:left-1/2 top-0 bottom-0 w-px bg-border" />
@@ -70,32 +91,14 @@ const AboutSection = () => {
               <div className={`hidden lg:block lg:w-1/2 ${i % 2 === 0 ? "pr-12 text-right" : "pl-12 text-left"}`}>
                 {interest.link ? (
                   <Link to={interest.link}>
-                    <motion.div
-                      className={`inline-flex items-center justify-center p-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-orange-500 mb-4 cursor-pointer ${i % 2 === 0 ? "ml-auto" : "mr-auto"}`}
-                      whileHover={{ 
-                        scale: 1.1, 
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        boxShadow: "0 0 20px rgba(249, 115, 22, 0.4)",
-                        rotate: 5
-                      }}
-                      transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                    >
-                      <interest.icon className="w-6 h-6" />
-                    </motion.div>
+                    <div className={`inline-flex items-center justify-center mb-6 ${i % 2 === 0 ? "ml-auto" : "mr-auto"}`}>
+                      <PlanetIcon icon={interest.icon} type={interest.type} size={48} />
+                    </div>
                   </Link>
                 ) : (
-                  <motion.div
-                    className={`inline-flex items-center justify-center p-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-orange-500 mb-4 cursor-pointer ${i % 2 === 0 ? "ml-auto" : "mr-auto"}`}
-                    whileHover={{ 
-                      scale: 1.1, 
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      boxShadow: "0 0 20px rgba(249, 115, 22, 0.4)",
-                      rotate: 5
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                  >
-                    <interest.icon className="w-6 h-6" />
-                  </motion.div>
+                  <div className={`inline-flex items-center justify-center mb-6 ${i % 2 === 0 ? "ml-auto" : "mr-auto"}`}>
+                    <PlanetIcon icon={interest.icon} type={interest.type} size={48} />
+                  </div>
                 )}
                 <h3 className="font-serif text-3xl font-bold bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100 bg-clip-text text-transparent mb-2 tracking-wide">{interest.title}</h3>
                 <p className="text-gray-200 leading-relaxed">{interest.desc}</p>
@@ -108,32 +111,14 @@ const AboutSection = () => {
               <div className="lg:hidden pl-12 w-full">
                 {interest.link ? (
                   <Link to={interest.link}>
-                    <motion.div
-                      className="inline-flex items-center justify-center p-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-orange-500 mb-2 cursor-pointer"
-                      whileHover={{ 
-                        scale: 1.1, 
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        boxShadow: "0 0 20px rgba(249, 115, 22, 0.4)",
-                        rotate: 5
-                      }}
-                      transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                    >
-                      <interest.icon className="w-5 h-5" />
-                    </motion.div>
+                    <div className="inline-flex items-center justify-center mb-4">
+                      <PlanetIcon icon={interest.icon} type={interest.type} size={36} />
+                    </div>
                   </Link>
                 ) : (
-                  <motion.div
-                    className="inline-flex items-center justify-center p-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-orange-500 mb-2 cursor-pointer"
-                    whileHover={{ 
-                      scale: 1.1, 
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      boxShadow: "0 0 20px rgba(249, 115, 22, 0.4)",
-                      rotate: 5
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                  >
-                    <interest.icon className="w-5 h-5" />
-                  </motion.div>
+                  <div className="inline-flex items-center justify-center mb-4">
+                    <PlanetIcon icon={interest.icon} type={interest.type} size={36} />
+                  </div>
                 )}
                 <h3 className="font-serif text-2xl font-bold bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100 bg-clip-text text-transparent mb-2 tracking-wide">{interest.title}</h3>
                 <p className="text-gray-200 text-sm leading-relaxed">{interest.desc}</p>

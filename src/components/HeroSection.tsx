@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Smartphone, Music, Sparkles, GraduationCap, Leaf, Camera, Coffee, Play, Pause } from "lucide-react";
+import { Gamepad2, Smartphone, Music, Sparkles, GraduationCap, Leaf, Camera, Coffee, Play, Pause, BookOpen } from "lucide-react";
 import avatarImg from "@/assets/avatar-3d.png";
 import { Tilt } from 'react-tilt';
 import { Link } from "react-router-dom";
@@ -109,9 +109,10 @@ const HeroSection = () => {
           {/* Hobby Icons */}
           <div className="flex gap-4">
             {[
-              { Icon: Gamepad2, link: "/gaming" },
+              { Icon: Coffee, link: "/daily" },
+              { Icon: BookOpen, link: "/study" },
               { Icon: Camera, link: "/photography" },
-              { Icon: Coffee, link: "/daily" }
+              { Icon: Gamepad2, link: "/gaming" }
             ].map(({ Icon, link }, i) => (
               <Link to={link} key={i}>
                 <div
