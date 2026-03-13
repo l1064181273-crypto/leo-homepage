@@ -5,6 +5,11 @@ import Navbar from "@/components/Navbar";
 import ParticleBackground from "@/components/ParticleBackground";
 import { useState } from "react";
 
+import gameWukong from "@/assets/game-wukong.jpg";
+import gameEldenring from "@/assets/game-eldenring.jpg";
+import gameCyberpunk from "@/assets/game-cyberpunk.jpg";
+import gameCrossfire from "@/assets/game-crossfire.jpg";
+
 const games = [
   {
     id: 1,
@@ -13,7 +18,7 @@ const games = [
     status: "Playing",
     hours: "45h",
     rating: "9.8",
-    image: "/src/assets/game-wukong.jpg"
+    image: gameWukong
   },
   {
     id: 2,
@@ -22,7 +27,7 @@ const games = [
     status: "Completed",
     hours: "120h",
     rating: "9.6",
-    image: "/src/assets/game-eldenring.jpg"
+    image: gameEldenring
   },
   {
     id: 3,
@@ -31,7 +36,7 @@ const games = [
     status: "Completed",
     hours: "80h",
     rating: "9.0",
-    image: "/src/assets/game-cyberpunk.jpg"
+    image: gameCyberpunk
   },
   {
     id: 4,
@@ -40,7 +45,7 @@ const games = [
     status: "Online",
     hours: "1000h+",
     rating: "Legendary",
-    image: "/src/assets/game-crossfire.jpg"
+    image: gameCrossfire
   }
 ];
 

@@ -4,94 +4,108 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ParticleBackground from "@/components/ParticleBackground";
 
+import photo1 from "@/assets/photo-1.jpg";
+import photo2 from "@/assets/photo-2.jpg";
+import photo3 from "@/assets/photo-3.jpg";
+import photo4 from "@/assets/photo-4.jpg";
+import photo5 from "@/assets/photo-5.jpg";
+import photo6 from "@/assets/photo-6.jpg";
+import photo7 from "@/assets/photo-7.jpg";
+import photo8 from "@/assets/photo-8.jpg";
+import photo9 from "@/assets/photo-9.jpg";
+import photo10 from "@/assets/photo-10.jpg";
+import photo11 from "@/assets/photo-11.jpg";
+import photo12 from "@/assets/photo-12.jpg";
+import photo13 from "@/assets/photo-13.jpg";
+
 const photos = [
   {
     id: 1,
-    url: "/src/assets/photo-1.jpg",
+    url: photo1,
     title: "暮色苍山",
     params: "f/8.0 · 1/120s · ISO 100",
     category: "Landscape"
   },
   {
     id: 2,
-    url: "/src/assets/photo-2.jpg",
+    url: photo2,
     title: "欧式校园",
     params: "f/5.6 · 1/500s · ISO 50",
     category: "Architecture"
   },
   {
     id: 3,
-    url: "/src/assets/photo-3.jpg",
+    url: photo3,
     title: "湖畔黑天鹅",
     params: "f/4.0 · 1/250s · ISO 100",
     category: "Nature"
   },
   {
     id: 4,
-    url: "/src/assets/photo-4.jpg",
+    url: photo4,
     title: "大礼堂广场",
     params: "f/5.6 · 1/200s · ISO 100",
     category: "City"
   },
   {
     id: 5,
-    url: "/src/assets/photo-5.jpg",
+    url: photo5,
     title: "永子棋院",
     params: "f/2.2 · 1/1000s · ISO 50",
     category: "Culture"
   },
   {
     id: 6,
-    url: "/src/assets/photo-6.jpg",
+    url: photo6,
     title: "热带椰林",
     params: "f/1.8 · 1/2000s · ISO 50",
     category: "Travel"
   },
   {
     id: 7,
-    url: "/src/assets/photo-7.jpg",
+    url: photo7,
     title: "麦田守望",
     params: "f/2.0 · 1/500s · ISO 100",
     category: "Portrait"
   },
   {
     id: 8,
-    url: "/src/assets/photo-8.jpg",
+    url: photo8,
     title: "通天之门",
     params: "f/2.8 · 1/1000s · ISO 50",
     category: "Minimalism"
   },
   {
     id: 9,
-    url: "/src/assets/photo-9.jpg",
+    url: photo9,
     title: "雪做的玫瑰",
     params: "f/1.8 · 1/60s · ISO 400",
     category: "Macro"
   },
   {
     id: 10,
-    url: "/src/assets/photo-10.jpg",
+    url: photo10,
     title: "海边路灯",
     params: "f/4.0 · 1/500s · ISO 50",
     category: "Minimalism"
   },
   {
     id: 11,
-    url: "/src/assets/photo-11.jpg",
+    url: photo11,
     title: "湖滨远眺",
     params: "f/8.0 · 1/250s · ISO 100",
     category: "City"
   },
   {
     id: 12,
-    url: "/src/assets/photo-12.jpg",
+    url: photo12,
     title: "听海",
     params: "f/2.8 · 1/200s · ISO 100",
     category: "Portrait"
   },
   {
     id: 13,
-    url: "/src/assets/photo-13.jpg",
+    url: photo13,
     title: "雪山飞驰",
     params: "GoPro · 4K · 60fps",
     category: "Sports"
