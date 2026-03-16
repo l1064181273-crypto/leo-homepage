@@ -912,7 +912,7 @@ const GameBackground = () => {
 
       if (hellMode) { ctx.fillStyle = 'rgba(80,0,0,0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
 
-      if (!isActiveRef.current) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
+      if (!isActive) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
 
       drawStars();
       if (gameOver) { return; }
@@ -999,7 +999,7 @@ const GameBackground = () => {
       window.removeEventListener('keydown',   onKey);
       window.removeEventListener('keyup',     onKeyUp);
     };
-  }, []);  // 注意：依赖数组为空，isActive 通过 ref 读取，避免 effect 重建
+  }, [isActive]);  // isActive 变化时重建游戏循环
 
   if (!isActive) return null;
 
