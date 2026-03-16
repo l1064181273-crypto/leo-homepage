@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageSquarePlus, MessageCircle, Instagram, Video } from "lucide-react";
+import { MessageSquarePlus, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Custom icons since Lucide doesn't have exact Douyin/Xiaohongshu/WeChat icons
@@ -23,6 +23,31 @@ const XiaohongshuIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const socialLinks = [
+  {
+    id: "douyin",
+    label: "抖音",
+    href: "https://v.douyin.com/cNppiMMkCmo/",
+    Icon: DouyinIcon,
+    hoverBg: "hover:bg-black",
+    hoverBorder: "hover:border-white/30",
+    shadow: "shadow-[0_0_15px_rgba(0,0,0,0.5)]",
+    hoverShadow: "0 0 20px rgba(255,255,255,0.2)",
+    rotate: 5,
+  },
+  {
+    id: "xiaohongshu",
+    label: "小红书",
+    href: "https://www.xiaohongshu.com/user/profile/",
+    Icon: XiaohongshuIcon,
+    hoverBg: "hover:bg-red-500",
+    hoverBorder: "hover:border-red-400",
+    shadow: "shadow-[0_0_15px_rgba(239,68,68,0.3)]",
+    hoverShadow: "0 0 20px rgba(239,68,68,0.5)",
+    rotate: -5,
+  },
+];
+
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.06 } },
@@ -45,38 +70,51 @@ const ConnectSection = () => {
     >
       <div className="container mx-auto max-w-3xl pt-12">
         <motion.div className="flex flex-col items-center gap-8" variants={item}>
-          
+
+          {/* Section label */}
+          <motion.p
+            className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground/50"
+            variants={item}
+          >
+            Find me on
+          </motion.p>
+
           {/* Social Icons */}
-          <div className="flex items-center gap-6">
-            <motion.a 
-              href="https://v.douyin.com/cNppiMMkCmo/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-black hover:text-white hover:border-white/20 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)]"
-              whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 0 20px rgba(255,255,255,0.2)" }}
-            >
-              <DouyinIcon className="w-6 h-6" />
-            </motion.a>
-            
-            <motion.a 
-              href="https://www.xiaohongshu.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-red-500 hover:text-white hover:border-red-400 transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]"
-              whileHover={{ scale: 1.1, rotate: -5, boxShadow: "0 0 20px rgba(239,68,68,0.5)" }}
-            >
-              <XiaohongshuIcon className="w-6 h-6" />
-            </motion.a>
-            
-            <Link to="/friend">
-              <motion.div 
-                className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:text-white hover:border-green-400 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] cursor-pointer relative group"
-                whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 0 20px rgba(34,197,94,0.5)" }}
-              >
-                <WechatIcon className="w-6 h-6" />
-              </motion.div>
-            </Link>
+          <div className="flex items-center gap-5">
+            {socialLinks.map(({ id, label, href, Icon, hoverBg, hoverBorder, shadow, hoverShadow, rotate }) => (
+              <div key={id} className="flex flex-col items-center gap-2">
+                <motion.a 
+                  href={href}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white ${hoverBg} hover:text-white ${hoverBorder} transition-all ${shadow}`}
+                  whileHover={{ scale: 1.1, rotate, boxShadow: hoverShadow }}
+                >
+                  <Icon className="w-6 h-6" />
+                </motion.a>
+                <span className="text-[10px] font-mono text-muted-foreground/40">{label}</span>
+              </div>
+            ))}
+
+            {/* WeChat - links to friend page */}
+            <div className="flex flex-col items-center gap-2">
+              <Link to="/friend">
+                <motion.div 
+                  className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-green-500 hover:text-white hover:border-green-400 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] cursor-pointer"
+                  whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 0 20px rgba(34,197,94,0.5)" }}
+                >
+                  <WechatIcon className="w-6 h-6" />
+                </motion.div>
+              </Link>
+              <span className="text-[10px] font-mono text-muted-foreground/40">微信</span>
+            </div>
           </div>
+
+          {/* Divider */}
+          <motion.div
+            className="w-24 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            variants={item}
+          />
 
           <p className="font-serif text-lg md:text-xl font-bold tracking-widest bg-gradient-to-r from-purple-500 via-fuchsia-400 to-green-400 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(192,132,252,0.5)] animate-pulse max-w-md">
             "总有人为你而来"

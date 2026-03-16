@@ -17,6 +17,8 @@ export default {
         heading: ['"Roboto Mono"', 'monospace'],
         body: ['"IBM Plex Sans"', 'sans-serif'],
         mono: ['"Roboto Mono"', 'monospace'],
+        serif: ['"IBM Plex Sans"', 'sans-serif'],
+        rounded: ['"IBM Plex Sans"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -81,10 +83,35 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "shine": {
+          "0%": { transform: "translateX(-100%) skewX(-12deg)" },
+          "100%": { transform: "translateX(200%) skewX(-12deg)" },
+        },
+        "gradient-shift": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "tilt": {
+          "0%, 50%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(1deg)" },
+          "75%": { transform: "rotate(-1deg)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "shine": "shine 1.5s ease-in-out",
+        "gradient": "gradient-shift 4s ease infinite",
+        "tilt": "tilt 10s infinite linear",
+        "float": "float 6s ease-in-out infinite",
+      },
+      backgroundSize: {
+        "300%": "300% 300%",
+        "200%": "200% 200%",
       },
     },
   },
