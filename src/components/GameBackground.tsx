@@ -35,18 +35,19 @@ interface Obstacle {
   tracking: boolean;
   shootTimer: number;
   shootInterval: number;
+  // OffscreenCanvas cache key
+  cacheKey: string;
 }
 
-// ── Powerup ──────────────────────────────────────────────────────────────────
 type PowerupType = 'heal' | 'damage' | 'shield';
 interface Powerup {
   x: number; y: number;
-  vy: number;         // 缓慢下落
+  vy: number;
   type: PowerupType;
   emoji: string;
   label: string;
-  life: number;       // frames before disappear
-  pulse: number;      // animation counter
+  life: number;
+  pulse: number;
 }
 
 interface Star {
@@ -66,32 +67,256 @@ const WAVE_INTERVAL   = 15000;
 const MAX_OBSTACLES   = 18;
 const BOSS_WAVE_EVERY = 5;
 
-const MAX_SHIP_HP     = 3;   // 护盾值：受3次攻击才爆炸
-const MAX_LIVES       = 3;   // 命数
+const MAX_SHIP_HP = 3;
+const MAX_LIVES   = 3;
 
-// 道具掉落概率
-const DROP_HEAL_CHANCE   = 0.08;  // 8% 掉落回血
-const DROP_DMG_CHANCE    = 0.12;  // 12% 掉落伤害增益
-const DROP_SHIELD_CHANCE = 0.06;  // 6% 掉落护盾回复
+const DROP_HEAL_CHANCE   = 0.08;
+const DROP_DMG_CHANCE    = 0.12;
+const DROP_SHIELD_CHANCE = 0.06;
+
+// HUD 更新节流：每 N 帧最多触发一次 React 重渲染
+const HUD_THROTTLE_FRAMES = 6;
+
+// ─── Web Audio Sound Engine ────────────────────────────────────────────────────
+
+class SoundEngine {
+  private ctx: AudioContext | null = null;
+  private masterGain: GainNode | null = null;
+  private enabled = true;
+
+  private getCtx(): AudioContext | null {
+    if (!this.ctx) {
+      try {
+        this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = 0.25;
+        this.masterGain.connect(this.ctx.destination);
+      } catch {
+        return null;
+      }
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+    return this.ctx;
+  }
+
+  setEnabled(v: boolean) { this.enabled = v; }
+
+  // 射击音：短促高频脉冲
+  shoot(weaponLevel: number) {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    const freqs = [880, 1100, 1320, 660];
+    const freq = freqs[Math.min(weaponLevel, 3)];
+    const count = weaponLevel >= 2 ? 2 : 1;
+    for (let i = 0; i < count; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(this.masterGain);
+      osc.type = weaponLevel === 3 ? 'sawtooth' : 'square';
+      osc.frequency.setValueAtTime(freq + i * 80, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.4, now + 0.08);
+      gain.gain.setValueAtTime(0.18, now + i * 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc.start(now + i * 0.02);
+      osc.stop(now + 0.12);
+    }
+  }
+
+  // 小爆炸音：低频噪声爆破
+  explodeSmall() {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.15, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+    const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = 600;
+    src.buffer = buf;
+    src.connect(filter); filter.connect(gain); gain.connect(this.masterGain);
+    gain.gain.setValueAtTime(0.5, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    src.start(now); src.stop(now + 0.15);
+  }
+
+  // Boss 爆炸音：更大更低沉
+  explodeBoss() {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    // 噪声层
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.5);
+    const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = 300;
+    src.buffer = buf;
+    src.connect(filter); filter.connect(gain); gain.connect(this.masterGain);
+    gain.gain.setValueAtTime(1.0, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    src.start(now); src.stop(now + 0.5);
+    // 低频轰鸣
+    const osc = ctx.createOscillator();
+    const og = ctx.createGain();
+    osc.connect(og); og.connect(this.masterGain);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(80, now);
+    osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+    og.gain.setValueAtTime(0.6, now);
+    og.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    osc.start(now); osc.stop(now + 0.4);
+  }
+
+  // 受击音：短促刺耳
+  hit() {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(this.masterGain);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.12);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc.start(now); osc.stop(now + 0.12);
+  }
+
+  // 道具拾取音：上扬音调
+  pickup(type: PowerupType) {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    const freqMap: Record<PowerupType, number[]> = {
+      heal:   [523, 659, 784],
+      shield: [440, 554, 659],
+      damage: [880, 1108, 1318],
+    };
+    const freqs = freqMap[type];
+    freqs.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(this.masterGain!);
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      const t = now + i * 0.08;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc.start(t); osc.stop(t + 0.15);
+    });
+  }
+
+  // 武器升级音：上升和弦
+  weaponUpgrade() {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    [523, 659, 784, 1046].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(this.masterGain!);
+      osc.type = 'triangle'; osc.frequency.value = f;
+      const t = now + i * 0.06;
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.start(t); osc.stop(t + 0.2);
+    });
+  }
+
+  // 游戏结束音：下降悲鸣
+  gameOver() {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    [440, 349, 294, 220].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(this.masterGain!);
+      osc.type = 'sawtooth'; osc.frequency.value = f;
+      const t = now + i * 0.18;
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.start(t); osc.stop(t + 0.3);
+    });
+  }
+
+  // 新波次音：鼓声
+  newWave() {
+    if (!this.enabled) return;
+    const ctx = this.getCtx(); if (!ctx || !this.masterGain) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(this.masterGain);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+    gain.gain.setValueAtTime(0.5, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  }
+}
+
+// ─── Emoji OffscreenCanvas Cache ──────────────────────────────────────────────
+
+const emojiCache = new Map<string, ImageBitmap | HTMLCanvasElement>();
+
+function getEmojiCanvas(emoji: string, size: number): HTMLCanvasElement {
+  const key = `${emoji}_${size}`;
+  if (emojiCache.has(key)) return emojiCache.get(key) as HTMLCanvasElement;
+  const offscreen = document.createElement('canvas');
+  offscreen.width = size + 8;
+  offscreen.height = size + 8;
+  const octx = offscreen.getContext('2d')!;
+  octx.font = `${size}px Arial`;
+  octx.textAlign = 'center';
+  octx.textBaseline = 'middle';
+  octx.fillText(emoji, (size + 8) / 2, (size + 8) / 2);
+  emojiCache.set(key, offscreen);
+  return offscreen;
+}
+
+// ─── Performance detection ─────────────────────────────────────────────────────
+
+function detectLowPerf(): boolean {
+  // 检测低性能设备：移动端或内存不足
+  const nav = navigator as any;
+  if (nav.deviceMemory && nav.deviceMemory < 4) return true;
+  if (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) return true;
+  // Firefox 在 shadowBlur 上性能较差，降级处理
+  const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+  if (isFirefox) return true;
+  return false;
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const GameBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const hudRef    = useRef<HTMLDivElement>(null);
-  const mouseRef  = useRef<Vec2>({ x: -100, y: -100 });
-  const [isActive, setIsActive] = useState(false);
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const hudRef      = useRef<HTMLDivElement>(null);
+  const mouseRef    = useRef<Vec2>({ x: -100, y: -100 });
+  const isActiveRef = useRef(false);
+  const soundRef    = useRef(new SoundEngine());
+  const [soundOn, setSoundOn] = useState(true);
 
+  const [isActive, setIsActive] = useState(false);
   const [hudData, setHudData] = useState({
     score: 0, bestScore: 0,
     lives: MAX_LIVES,
-    shipHp: MAX_SHIP_HP,   // 当前护盾值
+    shipHp: MAX_SHIP_HP,
     combo: 0, wave: 1,
     weaponLevel: 0,
     weaponName: WEAPON_NAMES[0],
     weaponProgress: 0,
-    damageBoost: 1,        // 伤害倍率
-    damageBoostTimer: 0,   // 剩余帧数
+    damageBoost: 1,
+    damageBoostTimer: 0,
     gameOver: false,
     waveAnnounce: '',
     upgradeAnnounce: '',
@@ -99,8 +324,16 @@ const GameBackground = () => {
     pickupAnnounce: '',
   });
 
+  // 音效开关同步
   useEffect(() => {
-    const handleToggle = (e: CustomEvent<boolean>) => setIsActive(e.detail);
+    soundRef.current.setEnabled(soundOn);
+  }, [soundOn]);
+
+  useEffect(() => {
+    const handleToggle = (e: CustomEvent<boolean>) => {
+      setIsActive(e.detail);
+      isActiveRef.current = e.detail;
+    };
     window.addEventListener('toggleGame', handleToggle as EventListener);
     return () => window.removeEventListener('toggleGame', handleToggle as EventListener);
   }, []);
@@ -118,6 +351,9 @@ const GameBackground = () => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    const sound = soundRef.current;
+    const lowPerf = detectLowPerf();
 
     let raf: number;
 
@@ -146,9 +382,12 @@ const GameBackground = () => {
     let pickupAnnounceTimer  = 0;
     let pickupAnnounceName   = '';
 
-    // 伤害增益
-    let damageBoost      = 1;   // 1 = 正常, 2 = 双倍
-    let damageBoostTimer = 0;   // 倒计时帧数
+    let damageBoost      = 1;
+    let damageBoostTimer = 0;
+
+    // HUD 节流
+    let hudThrottleCounter = 0;
+    let hudDirty = false;
 
     const ship = {
       alive: true,
@@ -158,8 +397,8 @@ const GameBackground = () => {
       invulnerable: 0,
       shooting: false,
       lastShot: 0,
-      hp: MAX_SHIP_HP,        // 护盾值
-      hitFlash: 0,            // 受击闪烁
+      hp: MAX_SHIP_HP,
+      hitFlash: 0,
     };
 
     // ── Init ──────────────────────────────────────────────────────────────────
@@ -196,10 +435,15 @@ const GameBackground = () => {
       ship.alive = true; ship.invulnerable = 120;
       ship.hp = MAX_SHIP_HP; ship.hitFlash = 0;
       ship.x = canvas.width / 2; ship.y = canvas.height / 2;
-      pushHUD();
+      markHudDirty();
     };
 
-    const pushHUD = () => {
+    // ── HUD 节流推送 ──────────────────────────────────────────────────────────
+    const markHudDirty = () => { hudDirty = true; };
+
+    const flushHUD = () => {
+      if (!hudDirty) return;
+      hudDirty = false;
       setHudData({
         score, bestScore, lives,
         shipHp: ship.hp,
@@ -244,35 +488,18 @@ const GameBackground = () => {
 
     const tryDropPowerup = (x: number, y: number, isBoss: boolean) => {
       const roll = Math.random();
-      // Boss 掉落概率翻倍
       const mult = isBoss ? 2.5 : 1;
-
       let type: PowerupType | null = null;
-      if (roll < DROP_HEAL_CHANCE * mult && lives < MAX_LIVES) {
-        type = 'heal';
-      } else if (roll < (DROP_HEAL_CHANCE + DROP_SHIELD_CHANCE) * mult && ship.hp < MAX_SHIP_HP) {
-        type = 'shield';
-      } else if (roll < (DROP_HEAL_CHANCE + DROP_SHIELD_CHANCE + DROP_DMG_CHANCE) * mult) {
-        type = 'damage';
-      }
-
+      if (roll < DROP_HEAL_CHANCE * mult && lives < MAX_LIVES) type = 'heal';
+      else if (roll < (DROP_HEAL_CHANCE + DROP_SHIELD_CHANCE) * mult && ship.hp < MAX_SHIP_HP) type = 'shield';
+      else if (roll < (DROP_HEAL_CHANCE + DROP_SHIELD_CHANCE + DROP_DMG_CHANCE) * mult) type = 'damage';
       if (!type) return;
-
       const cfg: Record<PowerupType, { emoji: string; label: string }> = {
         heal:   { emoji: '❤️',  label: '+1 Life' },
         shield: { emoji: '🛡️',  label: 'Shield +1' },
         damage: { emoji: '⚡',  label: 'DMG x2 (10s)' },
       };
-
-      powerups.push({
-        x, y,
-        vy: 0.6 + Math.random() * 0.4,
-        type,
-        emoji: cfg[type].emoji,
-        label: cfg[type].label,
-        life: 360, // 6 seconds at 60fps
-        pulse: 0,
-      });
+      powerups.push({ x, y, vy: 0.6 + Math.random() * 0.4, type, emoji: cfg[type].emoji, label: cfg[type].label, life: 360, pulse: 0 });
     };
 
     // ── Obstacle speed ────────────────────────────────────────────────────────
@@ -286,18 +513,14 @@ const GameBackground = () => {
 
     const spawnObstacle = () => {
       if (obstacles.length >= MAX_OBSTACLES + Math.min(wave * 2, 30)) return;
-
       const isBoss = wave > 0 && wave % BOSS_WAVE_EVERY === 0 && obstacles.filter(o => o.isBoss).length === 0;
       const size   = isBoss ? 80 + Math.random() * 30 : 28 + Math.random() * 38;
       const speed  = calcSpeed(isBoss);
       const hp     = isBoss ? 20 + wave * 2 : Math.max(1, Math.floor((size - 20) / 10));
-
       const trackChance = Math.max(0, (wave - 9) * 0.12);
       const tracking = !isBoss && Math.random() < trackChance;
-
       const canShoot = wave >= 7 || isBoss;
       const shootInterval = isBoss ? Math.max(40, 120 - wave * 4) : Math.max(80, 200 - wave * 8);
-
       let x: number, y: number;
       if (Math.random() > 0.5) {
         x = Math.random() > 0.5 ? -size : canvas.width + size;
@@ -306,38 +529,70 @@ const GameBackground = () => {
         x = Math.random() * canvas.width;
         y = Math.random() > 0.5 ? -size : canvas.height + size;
       }
-
-      const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x);
-
+      const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x) + (Math.random() - 0.5) * 1.2;
+      const emoji = isBoss ? BOSS_EMOJIS[Math.floor(Math.random() * BOSS_EMOJIS.length)] : EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
       obstacles.push({
         x, y,
-        vx: Math.cos(angle) * speed * (0.5 + Math.random() * 0.5),
-        vy: Math.sin(angle) * speed * (0.5 + Math.random() * 0.5),
-        emoji: isBoss ? BOSS_EMOJIS[Math.floor(Math.random() * BOSS_EMOJIS.length)] : tracking ? '🎯' : EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-        size, angle: 0,
-        spin: (Math.random() - 0.5) * (isBoss ? 0.02 : 0.08),
-        hp, maxHp: hp, hitFlash: 0, isBoss, tracking,
-        shootTimer: Math.floor(Math.random() * shootInterval),
-        shootInterval: canShoot ? shootInterval : 99999,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        emoji,
+        size,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.06,
+        hp, maxHp: hp,
+        hitFlash: 0,
+        isBoss,
+        tracking,
+        shootTimer: canShoot ? Math.random() * shootInterval : Infinity,
+        shootInterval: canShoot ? shootInterval : Infinity,
+        cacheKey: `${emoji}_${Math.round(size)}`,
       });
     };
 
-    // ── Split fragments ───────────────────────────────────────────────────────
+    // ── Splits ────────────────────────────────────────────────────────────────
 
     const spawnSplits = (obs: Obstacle) => {
       if (obs.isBoss || obs.size < 36) return;
-      const count = 2 + (wave >= 12 ? 1 : 0);
-      const speed = calcSpeed(false) * 1.3;
+      const count = 2;
       for (let i = 0; i < count; i++) {
-        const a = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+        const a = Math.random() * Math.PI * 2;
+        const spd = calcSpeed(false) * 1.3;
+        const newSize = obs.size * 0.55;
+        const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
         obstacles.push({
-          x: obs.x, y: obs.y,
-          vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-          emoji: '💥', size: obs.size * 0.5, angle: 0,
-          spin: (Math.random() - 0.5) * 0.15,
-          hp: 1, maxHp: 1, hitFlash: 0, isBoss: false, tracking: false,
-          shootTimer: 9999, shootInterval: 99999,
+          x: obs.x + Math.cos(a) * 20, y: obs.y + Math.sin(a) * 20,
+          vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
+          emoji, size: newSize,
+          angle: Math.random() * Math.PI * 2,
+          spin: (Math.random() - 0.5) * 0.08,
+          hp: 1, maxHp: 1, hitFlash: 0,
+          isBoss: false, tracking: false,
+          shootTimer: Infinity, shootInterval: Infinity,
+          cacheKey: `${emoji}_${Math.round(newSize)}`,
         });
+      }
+    };
+
+    // ── Ship damage ───────────────────────────────────────────────────────────
+
+    const shipTakeDamage = () => {
+      sound.hit();
+      ship.hp--;
+      ship.hitFlash = 15;
+      ship.invulnerable = 90;
+      if (ship.hp <= 0) {
+        ship.alive = false;
+        lives--;
+        bigExplosion(ship.x, ship.y);
+        if (lives <= 0) {
+          gameOver = true;
+          sound.gameOver();
+        } else {
+          ship.respawnTimer = 90;
+        }
+        markHudDirty();
+      } else {
+        markHudDirty();
       }
     };
 
@@ -345,150 +600,68 @@ const GameBackground = () => {
 
     const enemyShoot = (obs: Obstacle) => {
       if (!ship.alive) return;
-      if (obs.isBoss) {
-        const count = 12;
-        for (let i = 0; i < count; i++) {
-          const a = (Math.PI * 2 / count) * i;
-          const spd = 3 + wave * 0.1;
-          bullets.push({ x: obs.x, y: obs.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 120, trail: [], level: 0, isEnemy: true });
-        }
-        if (wave >= 10) {
-          const ta = Math.atan2(ship.y - obs.y, ship.x - obs.x);
-          const spd = 4 + wave * 0.15;
-          bullets.push({ x: obs.x, y: obs.y, vx: Math.cos(ta) * spd, vy: Math.sin(ta) * spd, life: 150, trail: [], level: 0, isEnemy: true });
-        }
-      } else {
-        const ta = Math.atan2(ship.y - obs.y, ship.x - obs.x);
-        const spd = 2.5 + wave * 0.12;
-        const spread = wave >= 12 ? 0.2 : 0;
-        const count = wave >= 15 ? 3 : wave >= 12 ? 2 : 1;
-        for (let i = 0; i < count; i++) {
-          const offset = (i - (count - 1) / 2) * spread;
-          bullets.push({ x: obs.x, y: obs.y, vx: Math.cos(ta + offset) * spd, vy: Math.sin(ta + offset) * spd, life: 100, trail: [], level: 0, isEnemy: true });
-        }
-      }
+      const a = Math.atan2(ship.y - obs.y, ship.x - obs.x);
+      const spd = 3.5 + wave * 0.15;
+      bullets.push({ x: obs.x, y: obs.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 120, trail: [], level: 0, isEnemy: true });
     };
 
-    // ── Player shoot ──────────────────────────────────────────────────────────
+    // ── Shoot ─────────────────────────────────────────────────────────────────
 
     const shoot = () => {
       const now = Date.now();
-      const fireRate = [150, 130, 110, 90][Math.min(weaponLevel, 3)];
-      if (now - ship.lastShot < fireRate) return;
+      const rate = Math.max(60, 200 - weaponLevel * 40);
+      if (now - ship.lastShot < rate) return;
       ship.lastShot = now;
-
       const a = ship.angle;
-      const bx = ship.x + Math.cos(a) * 22;
-      const by = ship.y + Math.sin(a) * 22;
-      const spd = 14;
-
-      const makeBullet = (angle: number): Bullet => ({ x: bx, y: by, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, life: 70, trail: [], level: weaponLevel, isEnemy: false });
-
+      const spd = 14 + weaponLevel * 2;
+      sound.shoot(weaponLevel);
       if (weaponLevel === 0) {
-        bullets.push(makeBullet(a));
+        bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 60, trail: [], level: 0 });
       } else if (weaponLevel === 1) {
-        bullets.push(makeBullet(a - 0.08)); bullets.push(makeBullet(a + 0.08));
+        [-0.15, 0.15].forEach(offset => {
+          bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a + offset) * spd, vy: Math.sin(a + offset) * spd, life: 60, trail: [], level: 1 });
+        });
       } else if (weaponLevel === 2) {
-        bullets.push(makeBullet(a - 0.18)); bullets.push(makeBullet(a)); bullets.push(makeBullet(a + 0.18));
+        [-0.2, 0, 0.2].forEach(offset => {
+          bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a + offset) * spd, vy: Math.sin(a + offset) * spd, life: 60, trail: [], level: 2 });
+        });
       } else {
-        for (let i = -1; i <= 1; i++) bullets.push({ x: bx, y: by, vx: Math.cos(a + i * 0.06) * 18, vy: Math.sin(a + i * 0.06) * 18, life: 50, trail: [], level: weaponLevel, isEnemy: false });
+        bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * spd * 1.3, vy: Math.sin(a) * spd * 1.3, life: 80, trail: [], level: 3 });
       }
-    };
-
-    // ── Ship take damage ──────────────────────────────────────────────────────
-
-    const shipTakeDamage = () => {
-      ship.hp--;
-      ship.hitFlash = 20;
-      spawnSparks(ship.x, ship.y, 12, ['#ef4444', '#fbbf24'], 4);
-
-      if (ship.hp <= 0) {
-        // 护盾耗尽 → 爆炸 → 扣命
-        bigExplosion(ship.x, ship.y);
-        ship.alive = false;
-        ship.respawnTimer = 150;
-        lives--;
-        combo = 0;
-        if (lives <= 0) { gameOver = true; }
-        // 重生时恢复满护盾
-        ship.hp = MAX_SHIP_HP;
-      } else {
-        // 护盾受损但未爆炸，短暂无敌
-        ship.invulnerable = 60;
-      }
-      pushHUD();
     };
 
     // ── Draw: Ship ────────────────────────────────────────────────────────────
 
     const drawShip = () => {
       if (!ship.alive) return;
-      if (ship.invulnerable > 0 && Math.floor(Date.now() / 80) % 2 === 0) return;
-
-      // Engine trail
-      const trailAngle = ship.angle + Math.PI;
-      const tx = ship.x + Math.cos(trailAngle) * 14;
-      const ty = ship.y + Math.sin(trailAngle) * 14;
-      const trailColors = damageBoost > 1
-        ? ['#ec4899', '#a78bfa', '#f97316']
-        : hellMode ? ['#ef4444', '#dc2626', '#fbbf24'] : ['#fbbf24', '#f97316', '#ef4444'];
-      particles.push({
-        x: tx + (Math.random() - 0.5) * 6, y: ty + (Math.random() - 0.5) * 6,
-        vx: Math.cos(trailAngle) * (1 + Math.random() * 2), vy: Math.sin(trailAngle) * (1 + Math.random() * 2),
-        life: 0.6, maxLife: 0.6,
-        color: trailColors[Math.floor(Math.random() * trailColors.length)],
-        size: Math.random() * 3 + 1, type: 'trail',
-      });
-
-      // Hit flash ring
-      if (ship.hitFlash > 0) {
-        ship.hitFlash--;
-        ctx.beginPath();
-        ctx.arc(ship.x, ship.y, 22, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(239,68,68,${ship.hitFlash / 20})`;
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.lineWidth = 1;
-      }
-
-      // Shield ring (shows remaining HP)
-      if (ship.hp < MAX_SHIP_HP && ship.hp > 0) {
-        const shieldColor = ship.hp === 2 ? '#fbbf24' : '#ef4444';
-        ctx.beginPath();
-        ctx.arc(ship.x, ship.y, 24, 0, Math.PI * 2 * (ship.hp / MAX_SHIP_HP));
-        ctx.strokeStyle = shieldColor;
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 8; ctx.shadowColor = shieldColor;
-        ctx.stroke();
-        ctx.shadowBlur = 0; ctx.lineWidth = 1;
-      } else if (ship.hp === MAX_SHIP_HP) {
-        // Full shield: subtle cyan ring
-        ctx.beginPath();
-        ctx.arc(ship.x, ship.y, 24, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(34,211,238,0.25)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.lineWidth = 1;
-      }
-
-      // Damage boost aura
-      if (damageBoost > 1) {
-        ctx.beginPath();
-        ctx.arc(ship.x, ship.y, 28 + Math.sin(Date.now() / 150) * 3, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(236,72,153,${0.4 + Math.sin(Date.now() / 150) * 0.2})`;
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 12; ctx.shadowColor = '#ec4899';
-        ctx.stroke();
-        ctx.shadowBlur = 0; ctx.lineWidth = 1;
-      }
+      const { x, y, angle, invulnerable, hitFlash } = ship;
+      if (invulnerable > 0 && Math.floor(invulnerable / 6) % 2 === 0) return;
 
       ctx.save();
-      ctx.translate(ship.x, ship.y);
-      ctx.rotate(ship.angle + Math.PI / 4);
-      ctx.font = '28px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('🚀', 0, 0);
+      ctx.translate(x, y);
+      ctx.rotate(angle + Math.PI / 2);
+
+      if (hitFlash > 0) {
+        ctx.globalAlpha = 0.7;
+        ctx.shadowBlur = lowPerf ? 0 : 20;
+        ctx.shadowColor = '#ef4444';
+      } else {
+        ctx.shadowBlur = lowPerf ? 0 : 18;
+        ctx.shadowColor = damageBoost > 1 ? '#ec4899' : '#22d3ee';
+      }
+
+      const col = hitFlash > 0 ? '#ef4444' : (damageBoost > 1 ? '#ec4899' : '#22d3ee');
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(-10, 10); ctx.lineTo(0, 6); ctx.lineTo(10, 10); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Engine glow
+      ctx.shadowBlur = lowPerf ? 0 : 12; ctx.shadowColor = '#f97316';
+      ctx.fillStyle = '#f97316'; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.arc(-4, 8, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(4, 8, 3, 0, Math.PI * 2); ctx.fill();
+
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
       ctx.restore();
     };
 
@@ -515,14 +688,12 @@ const GameBackground = () => {
         }
         ctx.globalAlpha = 1;
 
-        ctx.shadowBlur = b.isEnemy ? 10 : (damageBoost > 1 ? 20 : 14);
-        ctx.shadowColor = col;
+        if (!lowPerf) { ctx.shadowBlur = b.isEnemy ? 10 : (damageBoost > 1 ? 20 : 14); ctx.shadowColor = col; }
         ctx.beginPath();
         ctx.arc(b.x, b.y, b.isEnemy ? 3.5 : (b.level === 3 ? 4 : 3), 0, Math.PI * 2);
         ctx.fillStyle = col; ctx.fill();
-        ctx.shadowBlur = 0;
+        if (!lowPerf) ctx.shadowBlur = 0;
 
-        // Enemy bullet hits ship
         if (b.isEnemy && ship.alive && ship.invulnerable <= 0) {
           const dx = b.x - ship.x, dy = b.y - ship.y;
           if (Math.sqrt(dx * dx + dy * dy) < 16) {
@@ -538,57 +709,38 @@ const GameBackground = () => {
     const drawPowerups = () => {
       for (let i = powerups.length - 1; i >= 0; i--) {
         const p = powerups[i];
-        p.y += p.vy;
-        p.life--;
-        p.pulse++;
-
-        if (p.life <= 0 || p.y > canvas.height + 40) {
-          powerups.splice(i, 1); continue;
-        }
-
+        p.y += p.vy; p.life--; p.pulse++;
+        if (p.life <= 0 || p.y > canvas.height + 40) { powerups.splice(i, 1); continue; }
         const alpha = p.life < 60 ? p.life / 60 : 1;
         const scale = 1 + Math.sin(p.pulse * 0.1) * 0.1;
-
-        // Glow ring
         const glowColor = p.type === 'heal' ? '#ef4444' : p.type === 'shield' ? '#22d3ee' : '#ec4899';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 20 * scale, 0, Math.PI * 2);
         ctx.strokeStyle = glowColor;
         ctx.globalAlpha = alpha * 0.6;
         ctx.lineWidth = 2;
-        ctx.shadowBlur = 16; ctx.shadowColor = glowColor;
+        if (!lowPerf) { ctx.shadowBlur = 16; ctx.shadowColor = glowColor; }
         ctx.stroke();
-        ctx.shadowBlur = 0; ctx.lineWidth = 1;
-
-        // Emoji
+        if (!lowPerf) ctx.shadowBlur = 0;
+        ctx.lineWidth = 1;
         ctx.globalAlpha = alpha;
         ctx.font = `${22 * scale}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(p.emoji, p.x, p.y);
         ctx.globalAlpha = 1;
 
-        // Pickup check
         if (ship.alive) {
           const dx = p.x - ship.x, dy = p.y - ship.y;
           if (Math.sqrt(dx * dx + dy * dy) < 28) {
-            // Apply effect
-            if (p.type === 'heal') {
-              lives = Math.min(lives + 1, MAX_LIVES);
-              pickupAnnounceName = '❤️ +1 Life!';
-            } else if (p.type === 'shield') {
-              ship.hp = Math.min(ship.hp + 1, MAX_SHIP_HP);
-              pickupAnnounceName = '🛡️ Shield Restored!';
-            } else if (p.type === 'damage') {
-              damageBoost = 2;
-              damageBoostTimer = 600; // 10 seconds at 60fps
-              pickupAnnounceName = '⚡ DMG x2 (10s)!';
-            }
+            if (p.type === 'heal') { lives = Math.min(lives + 1, MAX_LIVES); pickupAnnounceName = '❤️ +1 Life!'; }
+            else if (p.type === 'shield') { ship.hp = Math.min(ship.hp + 1, MAX_SHIP_HP); pickupAnnounceName = '🛡️ Shield Restored!'; }
+            else if (p.type === 'damage') { damageBoost = 2; damageBoostTimer = 600; pickupAnnounceName = '⚡ DMG x2 (10s)!'; }
             pickupAnnounceTimer = 150;
+            sound.pickup(p.type);
             spawnSparks(p.x, p.y, 20, [glowColor, '#ffffff'], 5);
             spawnShockwave(p.x, p.y, glowColor);
             powerups.splice(i, 1);
-            pushHUD();
+            markHudDirty();
           }
         }
       }
@@ -602,7 +754,6 @@ const GameBackground = () => {
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const obs = obstacles[i];
 
-        // Tracking
         if (obs.tracking && ship.alive) {
           const ta = Math.atan2(ship.y - obs.y, ship.x - obs.x);
           const spd = Math.sqrt(obs.vx * obs.vx + obs.vy * obs.vy);
@@ -622,18 +773,15 @@ const GameBackground = () => {
         if (obs.y < -120) obs.y = canvas.height + 120;
         if (obs.y > canvas.height + 120) obs.y = -120;
 
-        // Enemy shoot
         obs.shootTimer--;
         if (obs.shootTimer <= 0) { obs.shootTimer = obs.shootInterval; enemyShoot(obs); }
 
-        // Bullet collision
         for (let j = bullets.length - 1; j >= 0; j--) {
           const b = bullets[j];
           if (b.isEnemy) continue;
           const dx = b.x - obs.x, dy = b.y - obs.y;
           if (Math.sqrt(dx * dx + dy * dy) < obs.size / 2) {
             bullets.splice(j, 1);
-            // 伤害增益：双倍扣血
             const dmg = damageBoost;
             obs.hp -= dmg;
             obs.hitFlash = 6;
@@ -650,13 +798,15 @@ const GameBackground = () => {
               if (weaponLevel < 3 && weaponXP >= weaponXPNext) {
                 weaponLevel++; weaponXP = 0; weaponXPNext = 15 + weaponLevel * 10;
                 upgradeAnnounceName = WEAPON_NAMES[weaponLevel]; upgradeAnnounceTimer = 180;
+                sound.weaponUpgrade();
               }
               spawnDamageText(obs.x, obs.y - obs.size / 2, multiplier > 1 ? `+${earned} x${multiplier}!` : `+${earned}`, obs.isBoss ? '#f97316' : '#22d3ee');
               spawnSplits(obs);
               tryDropPowerup(obs.x, obs.y, obs.isBoss);
               bigExplosion(obs.x, obs.y, obs.isBoss);
+              if (obs.isBoss) sound.explodeBoss(); else sound.explodeSmall();
               obstacles.splice(i, 1);
-              pushHUD();
+              markHudDirty();
               break;
             }
           }
@@ -674,14 +824,18 @@ const GameBackground = () => {
           ctx.globalAlpha = 1;
         }
 
-        if (obs.isBoss) { ctx.shadowBlur = 30; ctx.shadowColor = '#f97316'; }
-        else if (obs.tracking) { ctx.shadowBlur = 16; ctx.shadowColor = '#ef4444'; }
-        else if (hellMode) { ctx.shadowBlur = 8; ctx.shadowColor = '#dc2626'; }
+        if (!lowPerf) {
+          if (obs.isBoss) { ctx.shadowBlur = 30; ctx.shadowColor = '#f97316'; }
+          else if (obs.tracking) { ctx.shadowBlur = 16; ctx.shadowColor = '#ef4444'; }
+          else if (hellMode) { ctx.shadowBlur = 8; ctx.shadowColor = '#dc2626'; }
+        }
 
-        ctx.font = `${obs.size}px Arial`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(obs.emoji, 0, 0);
-        ctx.shadowBlur = 0;
+        // 使用缓存的 OffscreenCanvas 渲染 Emoji（避免每帧重新光栅化）
+        const emojiCanvas = getEmojiCanvas(obs.emoji, Math.round(obs.size));
+        const ew = emojiCanvas.width;
+        ctx.drawImage(emojiCanvas, -ew / 2, -ew / 2);
+
+        if (!lowPerf) ctx.shadowBlur = 0;
 
         if (obs.hp < obs.maxHp) {
           const bw = obs.isBoss ? 60 : 40, bh = obs.isBoss ? 6 : 4;
@@ -692,7 +846,6 @@ const GameBackground = () => {
         }
         ctx.restore();
 
-        // Ship body collision
         if (ship.alive && ship.invulnerable <= 0) {
           const dx = obs.x - ship.x, dy = obs.y - ship.y;
           if (Math.sqrt(dx * dx + dy * dy) < obs.size / 2 + 12) {
@@ -721,9 +874,10 @@ const GameBackground = () => {
           p.x += p.vx; p.y += p.vy;
           ctx.globalAlpha = p.life; ctx.font = `bold ${p.size}px monospace`;
           ctx.fillStyle = p.color; ctx.textAlign = 'center';
-          ctx.shadowBlur = 8; ctx.shadowColor = p.color;
+          if (!lowPerf) { ctx.shadowBlur = 8; ctx.shadowColor = p.color; }
           ctx.fillText(p.text ?? '', p.x, p.y);
-          ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+          if (!lowPerf) ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
         } else {
           p.x += p.vx; p.y += p.vy; p.vx *= 0.96; p.vy *= 0.96;
           ctx.globalAlpha = t; ctx.fillStyle = p.color;
@@ -758,7 +912,7 @@ const GameBackground = () => {
 
       if (hellMode) { ctx.fillStyle = 'rgba(80,0,0,0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
 
-      if (!isActive) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
+      if (!isActiveRef.current) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
 
       drawStars();
       if (gameOver) { return; }
@@ -768,23 +922,22 @@ const GameBackground = () => {
       if (waveTimer >= WAVE_INTERVAL) {
         waveTimer = 0; wave++;
         if (wave >= 10 && !hellMode) hellMode = true;
-        waveAnnounceTimer = 180; pushHUD();
+        waveAnnounceTimer = 180;
+        sound.newWave();
+        markHudDirty();
       }
-      if (waveAnnounceTimer   > 0) { waveAnnounceTimer--;   if (waveAnnounceTimer   === 0) pushHUD(); }
-      if (upgradeAnnounceTimer > 0) { upgradeAnnounceTimer--; if (upgradeAnnounceTimer === 0) pushHUD(); }
-      if (pickupAnnounceTimer  > 0) { pickupAnnounceTimer--;  if (pickupAnnounceTimer  === 0) pushHUD(); }
+      if (waveAnnounceTimer   > 0) { waveAnnounceTimer--;   if (waveAnnounceTimer   === 0) markHudDirty(); }
+      if (upgradeAnnounceTimer > 0) { upgradeAnnounceTimer--; if (upgradeAnnounceTimer === 0) markHudDirty(); }
+      if (pickupAnnounceTimer  > 0) { pickupAnnounceTimer--;  if (pickupAnnounceTimer  === 0) markHudDirty(); }
 
-      // Damage boost timer
       if (damageBoostTimer > 0) {
         damageBoostTimer--;
-        if (damageBoostTimer === 0) { damageBoost = 1; pushHUD(); }
-        else if (damageBoostTimer % 60 === 0) pushHUD(); // update every second
+        if (damageBoostTimer === 0) { damageBoost = 1; markHudDirty(); }
+        else if (damageBoostTimer % 60 === 0) markHudDirty();
       }
 
-      // Combo decay
-      if (comboTimer > 0) { comboTimer--; if (comboTimer === 0) { combo = 0; pushHUD(); } }
+      if (comboTimer > 0) { comboTimer--; if (comboTimer === 0) { combo = 0; markHudDirty(); } }
 
-      // Ship logic
       if (ship.alive) {
         const dx = mouseRef.current.x - ship.x, dy = mouseRef.current.y - ship.y;
         if (Math.abs(dx) > 1 || Math.abs(dy) > 1) ship.targetAngle = Math.atan2(dy, dx);
@@ -797,9 +950,9 @@ const GameBackground = () => {
         ship.respawnTimer--;
         if (ship.respawnTimer <= 0) {
           ship.alive = true; ship.invulnerable = 120;
-          ship.hp = MAX_SHIP_HP; // 重生满护盾
+          ship.hp = MAX_SHIP_HP;
           ship.x = mouseRef.current.x; ship.y = mouseRef.current.y;
-          pushHUD();
+          markHudDirty();
         }
       }
 
@@ -808,6 +961,13 @@ const GameBackground = () => {
       drawPowerups();
       drawParticles();
       drawShip();
+
+      // HUD 节流：每 HUD_THROTTLE_FRAMES 帧最多 flush 一次
+      hudThrottleCounter++;
+      if (hudThrottleCounter >= HUD_THROTTLE_FRAMES) {
+        hudThrottleCounter = 0;
+        flushHUD();
+      }
     };
 
     // ── Events ────────────────────────────────────────────────────────────────
@@ -839,7 +999,7 @@ const GameBackground = () => {
       window.removeEventListener('keydown',   onKey);
       window.removeEventListener('keyup',     onKeyUp);
     };
-  }, [isActive]);
+  }, []);  // 注意：依赖数组为空，isActive 通过 ref 读取，避免 effect 重建
 
   if (!isActive) return null;
 
@@ -887,13 +1047,11 @@ const GameBackground = () => {
         {/* Top-right: Lives + Wave + Ship HP */}
         <div className="absolute top-20 right-6 flex flex-col items-end gap-1.5">
           <div className="text-white/30 text-[10px] uppercase tracking-widest">Wave {hudData.wave}</div>
-          {/* Lives */}
           <div className="flex gap-1.5">
             {Array.from({ length: MAX_LIVES }).map((_, i) => (
               <span key={i} className={`text-lg transition-all duration-300 ${i < hudData.lives ? 'opacity-100' : 'opacity-15'}`}>❤️</span>
             ))}
           </div>
-          {/* Ship HP / Shield */}
           <div className="flex items-center gap-1.5">
             <span className="text-white/30 text-[10px]">Shield</span>
             <div className="flex gap-1">
@@ -912,7 +1070,7 @@ const GameBackground = () => {
           </div>
         </div>
 
-        {/* Bottom-left: Weapon + Damage boost */}
+        {/* Bottom-left: Weapon + Sound toggle */}
         <div className="absolute bottom-8 left-6 flex flex-col gap-1.5">
           <div className="text-white/30 text-[10px] uppercase tracking-widest">Weapon</div>
           <div className="flex items-center gap-2">
@@ -931,13 +1089,20 @@ const GameBackground = () => {
             </div>
           )}
           {hudData.weaponLevel === 3 && <div className="text-[10px] text-pink-400" style={{ textShadow: '0 0 8px #ec4899' }}>MAX LEVEL</div>}
-          {/* Damage boost timer bar */}
           {hudData.damageBoost > 1 && (
             <div className="w-28 h-1 rounded-full bg-white/10 overflow-hidden mt-0.5">
               <div className="h-full rounded-full bg-pink-500 transition-all duration-1000"
                 style={{ width: `${(hudData.damageBoostTimer / 600) * 100}%`, boxShadow: '0 0 6px #ec4899' }} />
             </div>
           )}
+          {/* 音效开关按钮 */}
+          <button
+            className="pointer-events-auto mt-1 flex items-center gap-1.5 text-[10px] text-white/40 hover:text-white/70 transition-colors cursor-pointer"
+            onClick={() => setSoundOn(v => !v)}
+          >
+            <span>{soundOn ? '🔊' : '🔇'}</span>
+            <span>{soundOn ? 'SFX ON' : 'SFX OFF'}</span>
+          </button>
         </div>
 
         {/* Bottom-center: Combo */}
