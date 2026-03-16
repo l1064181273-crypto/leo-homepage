@@ -626,7 +626,11 @@ const GameBackground = () => {
           bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a + offset) * spd, vy: Math.sin(a + offset) * spd, life: 60, trail: [], level: 2 });
         });
       } else {
-        bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * spd * 1.3, vy: Math.sin(a) * spd * 1.3, life: 80, trail: [], level: 3 });
+        // Level 3 BEAM: 三排紧密高速子弹
+        const bspd = spd * 1.3;
+        for (let i = -1; i <= 1; i++) {
+          bullets.push({ x: ship.x, y: ship.y, vx: Math.cos(a + i * 0.06) * bspd, vy: Math.sin(a + i * 0.06) * bspd, life: 70, trail: [], level: 3 });
+        }
       }
     };
 
@@ -643,25 +647,47 @@ const GameBackground = () => {
 
       if (hitFlash > 0) {
         ctx.globalAlpha = 0.7;
-        ctx.shadowBlur = lowPerf ? 0 : 20;
-        ctx.shadowColor = '#ef4444';
-      } else {
-        ctx.shadowBlur = lowPerf ? 0 : 18;
-        ctx.shadowColor = damageBoost > 1 ? '#ec4899' : '#22d3ee';
       }
 
-      const col = hitFlash > 0 ? '#ef4444' : (damageBoost > 1 ? '#ec4899' : '#22d3ee');
-      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(-10, 10); ctx.lineTo(0, 6); ctx.lineTo(10, 10); ctx.closePath();
-      ctx.fill(); ctx.stroke();
-
-      // Engine glow
-      ctx.shadowBlur = lowPerf ? 0 : 12; ctx.shadowColor = '#f97316';
-      ctx.fillStyle = '#f97316'; ctx.globalAlpha = 0.8;
-      ctx.beginPath(); ctx.arc(-4, 8, 3, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(4, 8, 3, 0, Math.PI * 2); ctx.fill();
-
-      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      // Shield ring (shows remaining HP)
+      ctx.restore();
+      if (ship.hp < MAX_SHIP_HP && ship.hp > 0) {
+        const shieldColor = ship.hp === 2 ? '#fbbf24' : '#ef4444';
+        ctx.beginPath();
+        ctx.arc(x, y, 24, 0, Math.PI * 2 * (ship.hp / MAX_SHIP_HP));
+        ctx.strokeStyle = shieldColor;
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = lowPerf ? 0 : 8; ctx.shadowColor = shieldColor;
+        ctx.stroke();
+        ctx.shadowBlur = 0; ctx.lineWidth = 1;
+      } else if (ship.hp === MAX_SHIP_HP) {
+        ctx.beginPath();
+        ctx.arc(x, y, 24, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(34,211,238,0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      }
+      // Damage boost aura
+      if (damageBoost > 1) {
+        ctx.beginPath();
+        ctx.arc(x, y, 28 + Math.sin(Date.now() / 150) * 3, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(236,72,153,${0.4 + Math.sin(Date.now() / 150) * 0.2})`;
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = lowPerf ? 0 : 12; ctx.shadowColor = '#ec4899';
+        ctx.stroke();
+        ctx.shadowBlur = 0; ctx.lineWidth = 1;
+      }
+      // 🚀 Emoji ship
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle + Math.PI / 4);
+      if (hitFlash > 0) ctx.globalAlpha = 0.6;
+      ctx.font = '28px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🚀', 0, 0);
+      ctx.globalAlpha = 1;
       ctx.restore();
     };
 
