@@ -238,3 +238,9 @@
     transform: translateY(100vh);
   }
 }
+
+/* QR code scan line animation */
+@keyframes scanline {
+  0%   { top: 0%; }
+  100% { top: 100%; }
+}

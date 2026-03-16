@@ -100,6 +100,14 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-12px)" },
         },
+        "spin-cw": {
+          "from": { transform: "rotate(0deg)" },
+          "to": { transform: "rotate(360deg)" },
+        },
+        "spin-ccw": {
+          "from": { transform: "rotate(0deg)" },
+          "to": { transform: "rotate(-360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -108,6 +116,8 @@ export default {
         "gradient": "gradient-shift 4s ease infinite",
         "tilt": "tilt 10s infinite linear",
         "float": "float 6s ease-in-out infinite",
+        "spin-cw": "spin-cw 12s linear infinite",
+        "spin-ccw": "spin-ccw 6s linear infinite",
       },
       backgroundSize: {
         "300%": "300% 300%",

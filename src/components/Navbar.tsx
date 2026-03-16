@@ -50,6 +50,9 @@ const Navbar = () => {
     "/gaming": "游戏人生",
     "/friend": "交个朋友",
     "/photos": "照片墙",
+    "/music": "音乐宇宙",
+    "/film": "光影世界",
+    "/food": "舌尖记忆",
   };
   const currentPageTitle = pageTitles[location.pathname];
 

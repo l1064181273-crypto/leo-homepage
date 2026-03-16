@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Sparkles, GraduationCap, Leaf, Camera, Coffee, BookOpen } from "lucide-react";
+import { Gamepad2, Sparkles, GraduationCap, Leaf, Music2, BookOpen } from "lucide-react";
 import avatarImg from "@/assets/avatar-3d.png";
 import { Tilt } from 'react-tilt';
 import { Link } from "react-router-dom";
@@ -24,17 +24,49 @@ const tags = [
   { text: "Game Lover", icon: Gamepad2, color: "text-orange-400" },
 ];
 
-const hobbies = [
-  { Icon: Coffee, link: "/daily", label: "日常", color: "hover:text-amber-400" },
-  { Icon: BookOpen, link: "/study", label: "学习", color: "hover:text-blue-400" },
-  { Icon: Camera, link: "/photography", label: "摄影", color: "hover:text-rose-400" },
-  { Icon: Gamepad2, link: "/gaming", label: "游戏", color: "hover:text-purple-400" },
+const nowStatus = [
+  {
+    emoji: "🎵",
+    label: "正在听",
+    value: "周杰伦 - 半岛铁盒",
+    color: "text-cyan-300",
+    bar: "bg-cyan-500",
+    glow: "shadow-[0_0_8px_rgba(34,211,238,0.3)]",
+    border: "border-cyan-500/20",
+    bg: "bg-cyan-500/5",
+    // 音乐进度条动画
+    animated: true,
+  },
+  {
+    emoji: "🎮",
+    label: "正在玩",
+    value: "黑神话：悟空",
+    color: "text-orange-300",
+    bar: "bg-orange-500",
+    glow: "shadow-[0_0_8px_rgba(249,115,22,0.3)]",
+    border: "border-orange-500/20",
+    bg: "bg-orange-500/5",
+    animated: false,
+  },
+  {
+    emoji: "📖",
+    label: "正在读",
+    value: "浪潮之巅",
+    color: "text-emerald-300",
+    bar: "bg-emerald-500",
+    glow: "shadow-[0_0_8px_rgba(52,211,153,0.3)]",
+    border: "border-emerald-500/20",
+    bg: "bg-emerald-500/5",
+    animated: false,
+  },
 ];
+
+// 音乐波形动画的 bar 高度序列
+const waveHeights = [3, 6, 10, 7, 4, 8, 12, 5, 9, 6, 3, 7];
 
 const HeroSection = () => {
   const [isGameActive, setIsGameActive] = useState(false);
 
-  // Dispatch custom event when game state changes
   useEffect(() => {
     const event = new CustomEvent('toggleGame', { detail: isGameActive });
     window.dispatchEvent(event);
@@ -115,43 +147,144 @@ const HeroSection = () => {
           </div>
         </motion.div>
 
-        {/* Right - Avatar */}
+        {/* Right - Avatar + Status */}
         <motion.div
-          className="flex flex-col items-center lg:items-center gap-8"
+          className="flex flex-col items-center lg:items-center gap-6"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <Tilt options={defaultOptions} className="relative group cursor-pointer">
-            {/* Purple Glow Ring - Outer */}
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-            
+            {/* === 方案A：旋转光环 + 粒子轨道 === */}
+
+            {/* 最外层：缓慢旋转的虚线光环 */}
+            <div
+              className="absolute rounded-full pointer-events-none animate-spin-cw"
+              style={{
+                inset: "-28px",
+                border: "1.5px dashed rgba(168,85,247,0.35)",
+              }}
+            >
+              {/* 轨道上的粒子亮点 */}
+              {[0, 90, 180, 270].map((deg, i) => (
+                <div
+                  key={i}
+                  className="absolute w-2 h-2 rounded-full"
+                  style={{
+                    background: i % 2 === 0
+                      ? "rgba(168,85,247,0.9)"
+                      : "rgba(34,211,238,0.9)",
+                    boxShadow: i % 2 === 0
+                      ? "0 0 8px 3px rgba(168,85,247,0.6)"
+                      : "0 0 8px 3px rgba(34,211,238,0.6)",
+                    top: "50%",
+                    left: "50%",
+                    transform: `rotate(${deg}deg) translateX(calc(50% + 26px)) translateY(-50%)`,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* 第二层：反向旋转的细线光环（更快） */}
+            <div
+              className="absolute rounded-full pointer-events-none animate-spin-ccw"
+              style={{
+                inset: "-14px",
+                border: "1px solid transparent",
+                backgroundImage:
+                  "linear-gradient(#0a0a0f, #0a0a0f), linear-gradient(135deg, rgba(168,85,247,0.8), rgba(34,211,238,0.8), rgba(168,85,247,0.8))",
+                backgroundOrigin: "border-box",
+                backgroundClip: "padding-box, border-box",
+              }}
+            />
+
+            {/* 渐变动态描边（紫→青→紫循环） */}
+            <div
+              className="absolute -inset-1 rounded-full pointer-events-none animate-spin-cw [animation-duration:4s]"
+              style={{
+                background:
+                  "conic-gradient(from 0deg, rgba(168,85,247,0.9), rgba(34,211,238,0.9), rgba(99,102,241,0.9), rgba(168,85,247,0.9))",
+                filter: "blur(6px)",
+                opacity: 0.75,
+              }}
+            />
+
+            {/* 头像本体 */}
             <img
               src={avatarImg}
               alt="AI 生成头像"
-              className="relative w-64 h-64 lg:w-80 lg:h-80 rounded-full object-cover border-4 border-purple-500/20 shadow-[0_0_40px_rgba(168,85,247,0.5)]"
+              className="relative w-64 h-64 lg:w-80 lg:h-80 rounded-full object-cover border-2 border-white/10"
+              style={{
+                boxShadow: "0 0 0 3px rgba(10,10,15,1), 0 0 40px rgba(168,85,247,0.5)",
+              }}
             />
           </Tilt>
 
-          {/* Hobby Icons */}
-          <div className="flex gap-4">
-            {hobbies.map(({ Icon, link, label, color }, i) => (
-              <Link to={link} key={i}>
-                <motion.div
-                  className={`flex flex-col items-center gap-1.5 group cursor-pointer`}
-                  whileHover={{ y: -3 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <div className="glass-card flex items-center justify-center w-12 h-12 rounded-full hover:bg-white/10 transition-colors duration-300">
-                    <Icon className={`w-5 h-5 text-muted-foreground ${color} transition-all duration-150`} />
+          {/* Now Status Card */}
+          <motion.div
+            className="w-full max-w-xs flex flex-col gap-2.5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+          >
+            {/* Header label */}
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-white/30">Now</span>
+            </div>
+
+            {nowStatus.map((item, i) => (
+              <motion.div
+                key={i}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${item.border} ${item.bg} ${item.glow} backdrop-blur-sm transition-all duration-300 hover:brightness-110`}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.55 + i * 0.1, duration: 0.35 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                {/* Emoji */}
+                <span className="text-xl flex-shrink-0">{item.emoji}</span>
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-mono text-[10px] text-white/30 uppercase tracking-wider mb-0.5">
+                    {item.label}
+                  </p>
+                  <p className={`text-sm font-medium ${item.color} truncate`}>
+                    {item.value}
+                  </p>
+                </div>
+
+                {/* Music wave animation for the first item */}
+                {item.animated && (
+                  <div className="flex items-end gap-[2px] h-4 flex-shrink-0">
+                    {waveHeights.map((h, j) => (
+                      <motion.div
+                        key={j}
+                        className={`w-[2px] rounded-full ${item.bar}`}
+                        animate={{ height: [h, h * 0.4, h, h * 0.7, h] }}
+                        transition={{
+                          duration: 0.8 + j * 0.05,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: j * 0.06,
+                        }}
+                        style={{ height: h }}
+                      />
+                    ))}
                   </div>
-                  <span className="text-[10px] font-mono text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
-                    {label}
-                  </span>
-                </motion.div>
-              </Link>
+                )}
+
+                {/* Static dot indicator for non-music items */}
+                {!item.animated && (
+                  <div className={`w-1.5 h-1.5 rounded-full ${item.bar} flex-shrink-0 opacity-60`} />
+                )}
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Scroll hint */}
           <motion.div

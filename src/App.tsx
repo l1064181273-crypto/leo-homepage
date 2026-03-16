@@ -11,6 +11,9 @@ import Daily from "./pages/Daily.tsx";
 import Study from "./pages/Study.tsx";
 import Photography from "./pages/Photography.tsx";
 import Gaming from "./pages/Gaming.tsx";
+import Music from "./pages/Music.tsx";
+import Film from "./pages/Film.tsx";
+import Food from "./pages/Food.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,9 @@ const App = () => (
           <Route path="/study" element={<Study />} />
           <Route path="/photography" element={<Photography />} />
           <Route path="/gaming" element={<Gaming />} />
+          <Route path="/music" element={<Music />} />
+          <Route path="/film" element={<Film />} />
+          <Route path="/food" element={<Food />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

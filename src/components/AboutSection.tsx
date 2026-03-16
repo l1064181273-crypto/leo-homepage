@@ -16,6 +16,7 @@ const interests = [
     icon: Music,
     title: "音乐",
     desc: "在旋律中寻找共鸣，用音符治愈心灵，探索不同风格的乐章。",
+    link: "/music",
     type: "music"
   },
   {
@@ -29,6 +30,7 @@ const interests = [
     icon: Film,
     title: "电影",
     desc: "体验百态人生，感受光影魅力，在银幕故事中思考与感悟。",
+    link: "/film",
     type: "film"
   },
   {
@@ -42,6 +44,7 @@ const interests = [
     icon: Utensils,
     title: "美食",
     desc: "寻觅街头巷尾的味道，用味蕾记录城市，享受烹饪与分享的快乐。",
+    link: "/food",
     type: "food"
   },
   {
