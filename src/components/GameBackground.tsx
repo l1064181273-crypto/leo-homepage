@@ -941,7 +941,12 @@ const GameBackground = () => {
       if (!isActive) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
 
       drawStars();
-      if (gameOver) { return; }
+      if (gameOver) {
+        // 强制立即 flush，确保 gameOver 状态同步到 React（不受节流影响）
+        hudDirty = true;
+        flushHUD();
+        return;
+      }
 
       // Wave timer
       waveTimer += dt;
