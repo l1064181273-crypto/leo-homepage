@@ -268,19 +268,28 @@ class SoundEngine {
 
 const emojiCache = new Map<string, ImageBitmap | HTMLCanvasElement>();
 
-function getEmojiCanvas(emoji: string, size: number): HTMLCanvasElement {
+async function getEmojiBitmap(emoji: string, size: number): Promise<ImageBitmap | HTMLCanvasElement> {
   const key = `${emoji}_${size}`;
-  if (emojiCache.has(key)) return emojiCache.get(key) as HTMLCanvasElement;
+  if (emojiCache.has(key)) return emojiCache.get(key)!;
+  
   const offscreen = document.createElement('canvas');
-  offscreen.width = size + 8;
-  offscreen.height = size + 8;
+  const padding = 10;
+  offscreen.width = size + padding;
+  offscreen.height = size + padding;
   const octx = offscreen.getContext('2d')!;
   octx.font = `${size}px Arial`;
   octx.textAlign = 'center';
   octx.textBaseline = 'middle';
-  octx.fillText(emoji, (size + 8) / 2, (size + 8) / 2);
-  emojiCache.set(key, offscreen);
-  return offscreen;
+  octx.fillText(emoji, (size + padding) / 2, (size + padding) / 2);
+  
+  try {
+    const bitmap = await createImageBitmap(offscreen);
+    emojiCache.set(key, bitmap);
+    return bitmap;
+  } catch (e) {
+    emojiCache.set(key, offscreen);
+    return offscreen;
+  }
 }
 
 // ─── Performance detection ─────────────────────────────────────────────────────
@@ -388,6 +397,11 @@ const GameBackground = () => {
     // HUD 节流
     let hudThrottleCounter = 0;
     let hudDirty = false;
+
+    // FPS 监测
+    let frameCount = 0;
+    let lastFpsUpdateTime = 0;
+    let currentFps = 0;
 
     const ship = {
       alive: true,
@@ -641,25 +655,19 @@ const GameBackground = () => {
       const { x, y, angle, invulnerable, hitFlash } = ship;
       if (invulnerable > 0 && Math.floor(invulnerable / 6) % 2 === 0) return;
 
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angle + Math.PI / 2);
-
-      if (hitFlash > 0) {
-        ctx.globalAlpha = 0.7;
-      }
+      if (hitFlash > 0) ctx.globalAlpha = 0.7;
 
       // Shield ring (shows remaining HP)
-      ctx.restore();
       if (ship.hp < MAX_SHIP_HP && ship.hp > 0) {
         const shieldColor = ship.hp === 2 ? '#fbbf24' : '#ef4444';
         ctx.beginPath();
         ctx.arc(x, y, 24, 0, Math.PI * 2 * (ship.hp / MAX_SHIP_HP));
         ctx.strokeStyle = shieldColor;
         ctx.lineWidth = 2;
-        ctx.shadowBlur = lowPerf ? 0 : 8; ctx.shadowColor = shieldColor;
+        if (!lowPerf) { ctx.shadowBlur = 8; ctx.shadowColor = shieldColor; }
         ctx.stroke();
-        ctx.shadowBlur = 0; ctx.lineWidth = 1;
+        if (!lowPerf) ctx.shadowBlur = 0;
+        ctx.lineWidth = 1;
       } else if (ship.hp === MAX_SHIP_HP) {
         ctx.beginPath();
         ctx.arc(x, y, 24, 0, Math.PI * 2);
@@ -674,15 +682,15 @@ const GameBackground = () => {
         ctx.arc(x, y, 28 + Math.sin(Date.now() / 150) * 3, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(236,72,153,${0.4 + Math.sin(Date.now() / 150) * 0.2})`;
         ctx.lineWidth = 2;
-        ctx.shadowBlur = lowPerf ? 0 : 12; ctx.shadowColor = '#ec4899';
+        if (!lowPerf) { ctx.shadowBlur = 12; ctx.shadowColor = '#ec4899'; }
         ctx.stroke();
-        ctx.shadowBlur = 0; ctx.lineWidth = 1;
+        if (!lowPerf) ctx.shadowBlur = 0;
+        ctx.lineWidth = 1;
       }
       // 🚀 Emoji ship
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle + Math.PI / 4);
-      if (hitFlash > 0) ctx.globalAlpha = 0.6;
       ctx.font = '28px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -856,10 +864,16 @@ const GameBackground = () => {
           else if (hellMode) { ctx.shadowBlur = 8; ctx.shadowColor = '#dc2626'; }
         }
 
-        // 使用缓存的 OffscreenCanvas 渲染 Emoji（避免每帧重新光栅化）
-        const emojiCanvas = getEmojiCanvas(obs.emoji, Math.round(obs.size));
-        const ew = emojiCanvas.width;
-        ctx.drawImage(emojiCanvas, -ew / 2, -ew / 2);
+        // 使用缓存的 ImageBitmap 渲染 Emoji（GPU 加速位图绘制）
+        const key = `${obs.emoji}_${Math.round(obs.size)}`;
+        const cached = emojiCache.get(key);
+        if (cached) {
+          const ew = cached.width;
+          ctx.drawImage(cached, -ew / 2, -ew / 2);
+        } else {
+          // 异步触发加载，本帧先跳过或用简单形状占位
+          getEmojiBitmap(obs.emoji, Math.round(obs.size));
+        }
 
         if (!lowPerf) ctx.shadowBlur = 0;
 
@@ -927,16 +941,22 @@ const GameBackground = () => {
       ctx.globalAlpha = 1;
     };
 
-    // ── Main loop ─────────────────────────────────────────────────────────────
-
-    let lastTime = 0;
+    // ── Main loop ───────────────────────────────────    let lastTime = 0;
     const loop = (ts: number) => {
+      if (!isActiveRef.current) return;
       raf = requestAnimationFrame(loop);
       const dt = ts - lastTime; lastTime = ts;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // FPS 计算
+      frameCount++;
+      if (ts - lastFpsUpdateTime >= 1000) {
+        currentFps = frameCount;
+        frameCount = 0;
+        lastFpsUpdateTime = ts;
+        markHudDirty();
+      }
 
-      if (hellMode) { ctx.fillStyle = 'rgba(80,0,0,0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);hellMode) { ctx.fillStyle = 'rgba(80,0,0,0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
 
       if (!isActive) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
 
@@ -993,6 +1013,18 @@ const GameBackground = () => {
       drawParticles();
       drawShip();
 
+      // 🚀 Canvas 原生 FPS 渲染（确保在所有 React 遮挡之上）
+      ctx.save();
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      const fpsColor = currentFps >= 55 ? '#22c55e' : currentFps >= 45 ? '#eab308' : '#ef4444';
+      ctx.fillStyle = fpsColor;
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = fpsColor;
+      ctx.fillText(`FPS: ${currentFps}`, 20, 20);
+      ctx.restore();
+
       // HUD 节流：每 HUD_THROTTLE_FRAMES 帧最多 flush 一次
       hudThrottleCounter++;
       if (hudThrottleCounter >= HUD_THROTTLE_FRAMES) {
@@ -1040,7 +1072,11 @@ const GameBackground = () => {
       <canvas
         ref={canvasRef}
         className="fixed inset-0 w-full h-full pointer-events-none z-[-1]"
-        style={{ cursor: hudData.gameOver ? 'default' : 'none' }}
+        style={{ 
+          cursor: hudData.gameOver ? 'default' : 'none',
+          transform: 'translateZ(0)',
+          willChange: 'transform'
+        }}
       />
 
       <div
