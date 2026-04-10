@@ -941,7 +941,8 @@ const GameBackground = () => {
       ctx.globalAlpha = 1;
     };
 
-    // ── Main loop ───────────────────────────────────    let lastTime = 0;
+    // ── Main loop ───────────────────────────────────
+    let lastTime = 0;
     const loop = (ts: number) => {
       if (!isActiveRef.current) return;
       raf = requestAnimationFrame(loop);
@@ -956,7 +957,8 @@ const GameBackground = () => {
         markHudDirty();
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);hellMode) { ctx.fillStyle = 'rgba(80,0,0,0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (hellMode) { ctx.fillStyle = 'rgba(80,0,0,0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
 
       if (!isActive) { obstacles = []; bullets = []; particles = []; powerups = []; return; }
 

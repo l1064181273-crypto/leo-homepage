@@ -19,7 +19,7 @@ const defaultOptions = {
 
 const tags = [
   { text: "AI Trainer", icon: Sparkles, color: "text-purple-400" },
-  { text: "A Student of QieMan", icon: GraduationCap, color: "text-blue-400" },
+  { text: "A Student of Life", icon: GraduationCap, color: "text-blue-400" },
   { text: "Smart Agriculture Graduate Student", icon: Leaf, color: "text-green-400" },
   { text: "Game Lover", icon: Gamepad2, color: "text-orange-400" },
 ];
