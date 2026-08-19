@@ -305,7 +305,43 @@
 
 .app-life .os-app-art,
 .os-dock-art.app-life {
-  background: #7e916f;
+  background: #1f2925;
+}
+
+.os-art-atlas {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2px;
+  padding: 3px;
+  background: #202824;
+}
+
+.os-art-atlas img {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: cover;
+  border-radius: 4px;
+  filter: saturate(0.82) contrast(0.94);
+}
+
+.os-art-atlas b {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  padding: 3px 5px;
+  color: #f2f4ea;
+  background: rgba(21, 30, 26, 0.86);
+  border-radius: 4px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 6px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
 }
 
 .app-ai .os-app-art,
@@ -504,6 +540,14 @@
   cursor: default;
 }
 
+.os-window.is-atlas-window {
+  top: 8vh;
+  left: calc(50% - min(600px, 42vw));
+  width: min(1200px, 84vw);
+  height: 82vh;
+  min-height: 560px;
+}
+
 .os-window.is-maximized {
   top: 52px !important;
   left: 18px !important;
@@ -566,6 +610,11 @@
   overflow: auto;
   padding: clamp(26px, 3.2vw, 46px);
   user-select: text;
+}
+
+.os-window-body.is-atlas {
+  overflow: hidden;
+  padding: 0;
 }
 
 .os-window-body::-webkit-scrollbar {
@@ -1224,6 +1273,377 @@
   border-radius: 50%;
 }
 
+/* Personal Atlas */
+
+.atlas-shell {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 218px minmax(0, 1fr);
+  background: #fbfbf7;
+}
+
+.atlas-sidebar {
+  display: flex;
+  min-width: 0;
+  padding: 30px 18px 22px;
+  border-right: 1px solid #e0e2dc;
+  background: #f4f5f0;
+  flex-direction: column;
+}
+
+.atlas-sidebar-heading {
+  padding: 0 10px 24px;
+}
+
+.atlas-sidebar-heading span {
+  display: block;
+  margin-bottom: 6px;
+  color: #89928c;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 7px;
+  letter-spacing: 0.13em;
+}
+
+.atlas-sidebar-heading strong {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.atlas-sidebar nav {
+  display: grid;
+  gap: 5px;
+}
+
+.atlas-sidebar nav button {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 43px;
+  padding: 0 11px;
+  color: #626d67;
+  background: transparent;
+  border: 0;
+  border-radius: 11px;
+  cursor: pointer;
+  font-size: 10px;
+  text-align: left;
+  transition: color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.atlas-sidebar nav button:hover {
+  color: #24332c;
+  background: #eaede7;
+  transform: translateX(2px);
+}
+
+.atlas-sidebar nav button.is-active {
+  color: #17251f;
+  background: white;
+  box-shadow: 0 4px 14px rgba(28, 45, 37, 0.06), inset 0 0 0 1px rgba(33, 50, 42, 0.04);
+  font-weight: 650;
+}
+
+.atlas-sidebar nav button svg {
+  color: #87928b;
+}
+
+.atlas-sidebar nav button.is-active svg {
+  color: #526e5f;
+}
+
+.atlas-sidebar nav button small {
+  color: #9aa39d;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 7px;
+}
+
+.atlas-sidebar-meta {
+  display: flex;
+  margin-top: auto;
+  padding: 18px 10px 0;
+  gap: 5px;
+  border-top: 1px solid #dfe3dc;
+  flex-direction: column;
+  color: #929c95;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+.atlas-content {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  grid-template-rows: 55px minmax(0, 1fr);
+  background: #fbfbf7;
+}
+
+.atlas-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 30px;
+  color: #9aa19d;
+  border-bottom: 1px solid #e2e4df;
+  font-size: 9px;
+}
+
+.atlas-breadcrumb i {
+  width: 4px;
+  height: 4px;
+  border-top: 1px solid #a5ada8;
+  border-right: 1px solid #a5ada8;
+  transform: rotate(45deg);
+}
+
+.atlas-breadcrumb strong {
+  color: #303d36;
+  font-weight: 650;
+}
+
+.atlas-collection {
+  min-width: 0;
+  overflow: auto;
+  padding: 31px 34px 46px;
+}
+
+.atlas-collection::-webkit-scrollbar {
+  width: 8px;
+}
+
+.atlas-collection::-webkit-scrollbar-thumb {
+  background: #cdd2cc;
+  border: 2px solid #fbfbf7;
+  border-radius: 999px;
+}
+
+.atlas-collection-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  margin-bottom: 28px;
+  gap: 28px;
+}
+
+.atlas-collection-header p {
+  margin: 0 0 8px;
+  color: #738179;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.atlas-collection-header h2 {
+  margin: 0;
+  color: #18251f;
+  font-size: clamp(31px, 3.2vw, 48px);
+  font-weight: 650;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.atlas-collection-header > div > span {
+  display: block;
+  max-width: 600px;
+  margin-top: 15px;
+  color: #707a74;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.atlas-collection-header > strong {
+  color: #d7dcd5;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 44px;
+  font-weight: 400;
+  letter-spacing: -0.08em;
+}
+
+.atlas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 18px;
+}
+
+.atlas-collection.is-square .atlas-grid,
+.atlas-collection.is-portrait .atlas-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.atlas-grid > button {
+  display: grid;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  color: #1c2923;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.atlas-image-wrap {
+  position: relative;
+  display: block;
+  aspect-ratio: 1.45;
+  overflow: hidden;
+  background: #e2e5df;
+  border-radius: 14px;
+}
+
+.atlas-collection.is-square .atlas-image-wrap {
+  aspect-ratio: 1;
+}
+
+.atlas-collection.is-portrait .atlas-image-wrap {
+  aspect-ratio: 0.72;
+}
+
+.atlas-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1), filter 250ms ease;
+}
+
+.atlas-grid > button:hover .atlas-image-wrap img {
+  filter: saturate(1.05) contrast(1.02);
+  transform: scale(1.035);
+}
+
+.atlas-image-wrap > small {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 7px;
+  color: rgba(249, 251, 246, 0.92);
+  background: rgba(16, 30, 24, 0.64);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 6px;
+  letter-spacing: 0.07em;
+}
+
+.atlas-card-copy {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 2px 0;
+}
+
+.atlas-card-copy strong {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-card-copy small {
+  overflow: hidden;
+  color: #8b948f;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-collection.collection-notes .atlas-grid > button.is-featured,
+.atlas-collection.collection-visual .atlas-grid > button.is-featured {
+  grid-column: 1 / -1;
+}
+
+.atlas-collection.collection-notes .is-featured .atlas-image-wrap,
+.atlas-collection.collection-visual .is-featured .atlas-image-wrap {
+  aspect-ratio: 2.2;
+}
+
+.atlas-viewer {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(21, 29, 25, 0.74);
+  backdrop-filter: blur(12px);
+}
+
+.atlas-viewer > div {
+  position: relative;
+  width: min(720px, 88%);
+  max-height: 88%;
+  overflow: hidden;
+  background: #f7f7f2;
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(5, 20, 14, 0.32);
+}
+
+.atlas-viewer > div > button {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: white;
+  background: rgba(15, 27, 22, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(9px);
+}
+
+.atlas-viewer img {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  background: #151d19;
+}
+
+.atlas-viewer footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 21px 20px;
+}
+
+.atlas-viewer footer p {
+  margin: 0 0 5px;
+  color: #7d8781;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+.atlas-viewer footer h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+.atlas-viewer footer span {
+  color: #6f7b74;
+  font-size: 9px;
+}
+
+.atlas-viewer footer > strong {
+  color: #66766d;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  font-weight: 500;
+}
+
 @keyframes os-signal {
   0% { opacity: 0.7; transform: scale(0.4); }
   70%, 100% { opacity: 0; transform: scale(2.7); }
@@ -1369,6 +1789,122 @@
   .os-window-body {
     height: calc(100% - 47px);
     padding: 22px;
+  }
+
+  .os-window-body.is-atlas {
+    padding: 0;
+  }
+
+  .atlas-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 62px minmax(0, 1fr);
+  }
+
+  .atlas-sidebar {
+    display: block;
+    padding: 9px 10px;
+    overflow: hidden;
+    border-right: 0;
+    border-bottom: 1px solid #dde1da;
+  }
+
+  .atlas-sidebar-heading,
+  .atlas-sidebar-meta {
+    display: none;
+  }
+
+  .atlas-sidebar nav {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .atlas-sidebar nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .atlas-sidebar nav button {
+    display: flex;
+    min-height: 39px;
+    flex: 0 0 auto;
+    gap: 7px;
+    padding: 0 10px;
+  }
+
+  .atlas-sidebar nav button small {
+    display: none;
+  }
+
+  .atlas-content {
+    grid-template-rows: 44px minmax(0, 1fr);
+  }
+
+  .atlas-breadcrumb {
+    gap: 7px;
+    padding: 0 15px;
+    font-size: 8px;
+  }
+
+  .atlas-collection {
+    padding: 21px 16px 36px;
+  }
+
+  .atlas-collection-header {
+    margin-bottom: 21px;
+    gap: 15px;
+  }
+
+  .atlas-collection-header h2 {
+    font-size: 30px;
+  }
+
+  .atlas-collection-header > div > span {
+    margin-top: 10px;
+    font-size: 9px;
+  }
+
+  .atlas-collection-header > strong {
+    font-size: 30px;
+  }
+
+  .atlas-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .atlas-collection.is-square .atlas-grid,
+  .atlas-collection.is-portrait .atlas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px 10px;
+  }
+
+  .atlas-collection.collection-notes .atlas-grid > button.is-featured,
+  .atlas-collection.collection-visual .atlas-grid > button.is-featured {
+    grid-column: auto;
+  }
+
+  .atlas-collection.collection-notes .is-featured .atlas-image-wrap,
+  .atlas-collection.collection-visual .is-featured .atlas-image-wrap {
+    aspect-ratio: 1.45;
+  }
+
+  .atlas-card-copy {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .atlas-viewer {
+    padding: 13px;
+  }
+
+  .atlas-viewer > div {
+    width: 100%;
+  }
+
+  .atlas-viewer img {
+    max-height: 390px;
   }
 
   .os-window-heading h2 {

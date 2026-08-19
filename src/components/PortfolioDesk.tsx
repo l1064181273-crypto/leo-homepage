@@ -4,7 +4,6 @@ import {
   BatteryMedium,
   Bot,
   Check,
-  ChevronRight,
   Code2,
   Command,
   ExternalLink,
@@ -16,14 +15,13 @@ import {
   MapPin,
   Radio,
   ShoppingBag,
-  Sparkles,
   UserRound,
   Wifi,
 } from "lucide-react";
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import avatarImage from "@/assets/avatar-3d.png";
-import lifeImage from "@/assets/photo-7.jpg";
+import PersonalAtlas, { atlasCoverImages } from "@/components/PersonalAtlas";
 
 type DesktopApp =
   | "about"
@@ -53,7 +51,7 @@ const apps: AppDefinition[] = [
   { id: "agriculture", label: "Smart Ag AI", eyebrow: "RESEARCH", x: "12%", y: "47%" },
   { id: "build", label: "Vibe Build", eyebrow: "CASE 01", x: "42%", y: "49%" },
   { id: "resume", label: "Resume", eyebrow: "CV", x: "74%", y: "45%" },
-  { id: "life", label: "Life Archive", eyebrow: "OFFLINE", x: "89%", y: "66%" },
+  { id: "life", label: "Personal Atlas", eyebrow: "COLLECTIONS", x: "89%", y: "66%" },
   { id: "github", label: "GitHub", eyebrow: "SOURCE", x: "25%", y: "72%" },
   { id: "contact", label: "Contact", eyebrow: "HELLO", x: "59%", y: "73%" },
 ];
@@ -69,7 +67,12 @@ const AppArtwork = ({ id, compact = false }: { id: DesktopApp; compact?: boolean
   }
 
   if (id === "life") {
-    return <img className="os-art-photo" src={lifeImage} alt="生活照片" />;
+    return (
+      <span className="os-art-atlas" aria-hidden="true">
+        {atlasCoverImages.map((image, index) => <img src={image} alt="" key={image} style={{ "--atlas-index": index } as CSSProperties} />)}
+        <b>ATLAS</b>
+      </span>
+    );
   }
 
   if (id === "ai") {
@@ -295,20 +298,6 @@ const ResumeContent = () => (
   </div>
 );
 
-const LifeContent = () => (
-  <div className="os-life-content">
-    <WindowHeader eyebrow="LIFE ARCHIVE" title="工作之外的我" icon={<Sparkles size={22} />} />
-    <div className="os-life-layout">
-      <img src={lifeImage} alt="Haonan Li 的生活照片" />
-      <div>
-        <p>摄影 音乐 电影 游戏和日常</p>
-        <p>这些兴趣让个人网站不只是一份在线简历</p>
-        <Link to="/photos">打开生活档案 <ChevronRight size={15} /></Link>
-      </div>
-    </div>
-  </div>
-);
-
 const GithubContent = () => (
   <div className="os-link-content">
     <Github size={44} strokeWidth={1.35} />
@@ -339,7 +328,7 @@ const contentByApp: Record<DesktopApp, () => JSX.Element> = {
   agriculture: () => <WorkContent id="agriculture" />,
   build: BuildContent,
   resume: ResumeContent,
-  life: LifeContent,
+  life: PersonalAtlas,
   github: GithubContent,
   contact: ContactContent,
 };
@@ -437,7 +426,7 @@ const PortfolioDesk = () => {
       <AnimatePresence>
         {activeApp && !isMinimized && ActiveContent && activeDefinition && (
           <motion.article
-            className={`os-window ${isMaximized ? "is-maximized" : ""}`}
+            className={`os-window ${activeApp === "life" ? "is-atlas-window" : ""} ${isMaximized ? "is-maximized" : ""}`}
             key={activeApp}
             initial={{ opacity: 0, scale: 0.93, y: 28 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -457,7 +446,7 @@ const PortfolioDesk = () => {
               <span>{activeDefinition.label}</span>
               <span>{activeDefinition.eyebrow}</span>
             </div>
-            <div className="os-window-body"><ActiveContent /></div>
+            <div className={`os-window-body ${activeApp === "life" ? "is-atlas" : ""}`}><ActiveContent /></div>
           </motion.article>
         )}
       </AnimatePresence>
