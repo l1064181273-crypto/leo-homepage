@@ -65,7 +65,11 @@ const AppArtwork = ({ id, compact = false }: { id: DesktopApp; compact?: boolean
   const iconSize = compact ? 24 : 29;
 
   if (id === "about") {
-    return <img className="os-art-photo" src={avatarImage} alt="Haonan Li 的头像" />;
+    return (
+      <span className="os-art-about" aria-hidden="true">
+        <i /><i /><i />
+      </span>
+    );
   }
 
   if (id === "life") {

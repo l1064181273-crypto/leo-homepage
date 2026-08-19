@@ -300,7 +300,71 @@
 
 .app-about .os-app-art,
 .os-dock-art.app-about {
-  background: #d8d6b8;
+  background: linear-gradient(155deg, #39c8f5 0%, #0798eb 48%, #126be1 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.62),
+    inset 0 -2px 4px rgba(4, 63, 167, 0.28),
+    0 7px 14px rgba(3, 61, 144, 0.24);
+}
+
+.os-art-about {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.os-art-about::before {
+  position: absolute;
+  inset: 2px;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: inherit;
+}
+
+.os-art-about::after {
+  position: absolute;
+  top: -28%;
+  left: 8%;
+  width: 84%;
+  height: 62%;
+  content: "";
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.os-art-about i {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f5fbff, #dbefff);
+  box-shadow: 0 2px 3px rgba(3, 56, 139, 0.28);
+}
+
+.os-art-about i:nth-child(1),
+.os-art-about i:nth-child(2) {
+  top: 18%;
+  width: 10%;
+  height: 61%;
+}
+
+.os-art-about i:nth-child(1) {
+  left: 39%;
+  transform: rotate(31deg);
+}
+
+.os-art-about i:nth-child(2) {
+  right: 39%;
+  transform: rotate(-31deg);
+}
+
+.os-art-about i:nth-child(3) {
+  top: 59%;
+  left: 24%;
+  width: 52%;
+  height: 10%;
 }
 
 .app-life .os-app-art,
