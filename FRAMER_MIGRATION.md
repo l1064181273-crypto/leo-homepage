@@ -101,17 +101,20 @@ Updated 2026 08 19
 - Main navigation is Profile Work Atlas Build and Connect
 - GitHub is the only verified external shortcut
 - Profile contains the AI Data Operator and Vibe Builder positioning and the three real operations capability areas
-- Fictional email phone number Brooklyn map client names and other template identity leftovers are removed
+- The reusable Profile and Connect source components contain the new identity capabilities GitHub and WeChat content
 - Connect contains the bilingual introduction GitHub and the real WeChat QR image on desktop and mobile
 - Works CMS contains seven records with truthful categories and summaries
 - Personal Atlas uses `src/assets/daily-2.jpg` as its cover and four approved daily images in the detail record
 - Template client names challenges and final thoughts are replaced across all seven Works records
 - Framer Agent free credits are exhausted but manual editing preview and publishing remain available
+- Interactive preview validation found that the Home Profile shortcut still opens a separate legacy window copy with the old About Me introduction email phone and social links
+- The legacy runtime window is not coming from the updated Pages About source component and remains present after editor reload preview reload and breakpoint checks
 - No publish action has been taken
 
 ## Next manual pass
 
-1 Replace remaining template project thumbnails with restrained custom covers
-2 Verify every app window from the interactive preview
-3 Check tablet and phone spacing and overflow
-4 Publish to a temporary Framer domain only after explicit approval
+1 Rebind the Home Profile shortcut to the updated Pages About component or replace the legacy overlay instance
+2 Run the same binding check for Connect Resume and every project shortcut
+3 Replace remaining template project thumbnails with restrained custom covers
+4 Check desktop tablet and phone spacing and overflow
+5 Publish to a temporary Framer domain only after explicit approval
