@@ -1,169 +1,381 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  BarChart3,
+  ArrowUpRight,
   BatteryMedium,
   Bot,
-  BriefcaseBusiness,
   Check,
+  ChevronRight,
   Code2,
   Command,
-  FileText,
-  FolderOpen,
-  Image,
+  ExternalLink,
+  Github,
+  Leaf,
+  LineChart,
+  Mail,
+  Map,
+  MapPin,
+  Radio,
+  ShoppingBag,
   Sparkles,
   UserRound,
   Wifi,
 } from "lucide-react";
-import { type CSSProperties, type ElementType, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import avatarImage from "@/assets/avatar-3d.png";
+import lifeImage from "@/assets/photo-7.jpg";
 
-type MacApp = "about" | "work" | "ai" | "resume" | "build" | "photos";
+type DesktopApp =
+  | "about"
+  | "ai"
+  | "local"
+  | "commerce"
+  | "agriculture"
+  | "build"
+  | "resume"
+  | "life"
+  | "github"
+  | "contact";
 
 type AppDefinition = {
-  id: MacApp;
+  id: DesktopApp;
   label: string;
-  icon: ElementType;
-  tone: string;
+  eyebrow: string;
   x: string;
   y: string;
 };
 
 const apps: AppDefinition[] = [
-  { id: "about", label: "About Me", icon: UserRound, tone: "orange", x: "7%", y: "15%" },
-  { id: "work", label: "Work", icon: BriefcaseBusiness, tone: "blue", x: "34%", y: "12%" },
-  { id: "ai", label: "AI Data", icon: Bot, tone: "violet", x: "72%", y: "15%" },
-  { id: "resume", label: "Resume", icon: FileText, tone: "yellow", x: "13%", y: "59%" },
-  { id: "build", label: "Vibe Build", icon: Code2, tone: "cyan", x: "59%", y: "55%" },
-  { id: "photos", label: "Life Archive", icon: Image, tone: "green", x: "82%", y: "61%" },
+  { id: "about", label: "About Me", eyebrow: "PROFILE", x: "4%", y: "11%" },
+  { id: "ai", label: "AI Data", eyebrow: "OPERATIONS", x: "31%", y: "9%" },
+  { id: "local", label: "Local Life", eyebrow: "BUSINESS", x: "61%", y: "15%" },
+  { id: "commerce", label: "E Commerce", eyebrow: "GROWTH", x: "87%", y: "9%" },
+  { id: "agriculture", label: "Smart Ag AI", eyebrow: "RESEARCH", x: "12%", y: "47%" },
+  { id: "build", label: "Vibe Build", eyebrow: "CASE 01", x: "42%", y: "49%" },
+  { id: "resume", label: "Resume", eyebrow: "CV", x: "74%", y: "45%" },
+  { id: "life", label: "Life Archive", eyebrow: "OFFLINE", x: "89%", y: "66%" },
+  { id: "github", label: "GitHub", eyebrow: "SOURCE", x: "25%", y: "72%" },
+  { id: "contact", label: "Contact", eyebrow: "HELLO", x: "59%", y: "73%" },
 ];
 
-const dockApps: MacApp[] = ["about", "work", "ai", "build", "photos"];
+const appMap = Object.fromEntries(apps.map((app) => [app.id, app])) as Record<DesktopApp, AppDefinition>;
+const dockApps: DesktopApp[] = ["about", "ai", "build", "life", "contact"];
 
-const appMap = Object.fromEntries(apps.map((app) => [app.id, app])) as Record<MacApp, AppDefinition>;
+const AppArtwork = ({ id, compact = false }: { id: DesktopApp; compact?: boolean }) => {
+  const iconSize = compact ? 24 : 29;
+
+  if (id === "about") {
+    return <img className="os-art-photo" src={avatarImage} alt="Haonan Li 的头像" />;
+  }
+
+  if (id === "life") {
+    return <img className="os-art-photo" src={lifeImage} alt="生活照片" />;
+  }
+
+  if (id === "ai") {
+    return (
+      <span className="os-art-ai" aria-hidden="true">
+        <b>AI</b>
+        <i /><i /><i />
+      </span>
+    );
+  }
+
+  if (id === "local") {
+    return (
+      <span className="os-art-local" aria-hidden="true">
+        <Map size={iconSize} strokeWidth={1.55} />
+        <i /><i /><i />
+      </span>
+    );
+  }
+
+  if (id === "commerce") {
+    return (
+      <span className="os-art-commerce" aria-hidden="true">
+        <ShoppingBag size={iconSize} strokeWidth={1.55} />
+        <b>24</b>
+      </span>
+    );
+  }
+
+  if (id === "agriculture") {
+    return (
+      <span className="os-art-agriculture" aria-hidden="true">
+        <Leaf size={iconSize} strokeWidth={1.5} />
+        <i />
+      </span>
+    );
+  }
+
+  if (id === "build") {
+    return (
+      <span className="os-art-build" aria-hidden="true">
+        <small>LEO</small>
+        <b>OS</b>
+        <i />
+      </span>
+    );
+  }
+
+  if (id === "resume") {
+    return (
+      <span className="os-art-resume" aria-hidden="true">
+        <i />
+        <b>Resume</b>
+        <small>AI DATA OPS</small>
+        <em /><em /><em />
+      </span>
+    );
+  }
+
+  if (id === "github") {
+    return <Github size={compact ? 30 : 40} strokeWidth={1.45} aria-hidden="true" />;
+  }
+
+  return <Mail size={compact ? 28 : 37} strokeWidth={1.45} aria-hidden="true" />;
+};
+
+const WindowHeader = ({ eyebrow, title, icon }: { eyebrow: string; title: string; icon?: ReactNode }) => (
+  <div className="os-window-heading">
+    <div>
+      <p>{eyebrow}</p>
+      <h2>{title}</h2>
+    </div>
+    {icon && <span>{icon}</span>}
+  </div>
+);
 
 const AboutContent = () => (
-  <div className="mac-about">
-    <div className="mac-avatar">HL</div>
-    <div>
-      <p className="mac-window-eyebrow">PROFILE</p>
-      <h4>Haonan Li</h4>
-      <p>AI 数据运营者与 Vibe Coding 实践者</p>
-    </div>
-    <div className="mac-chip-row">
-      <span>AI Data</span><span>Local Life</span><span>E-commerce</span>
-    </div>
-  </div>
-);
-
-const WorkContent = () => (
-  <div className="mac-app-stack">
-    <div className="mac-content-heading">
-      <div><p className="mac-window-eyebrow">OPERATIONS</p><h4>把问题变成行动</h4></div>
-      <span className="mac-status-badge">Active</span>
-    </div>
-    {[
-      ["Signal", "找到业务变化与关键问题"],
-      ["Context", "补齐用户场景与业务背景"],
-      ["Action", "形成可以推进的下一步"],
-    ].map(([title, text], index) => (
-      <div className="mac-list-row" key={title}>
-        <span>0{index + 1}</span><div><strong>{title}</strong><p>{text}</p></div><Check size={13} />
+  <div className="os-about-content">
+    <div className="os-about-intro">
+      <div className="os-about-portrait"><img src={avatarImage} alt="Haonan Li" /></div>
+      <div>
+        <p className="os-content-kicker">HELLO I AM</p>
+        <h2>Haonan Li</h2>
+        <p className="os-about-role">AI 数据运营者和 Vibe Coding 实践者</p>
+        <div className="os-availability"><i />在字节跳动参与 AI 数据运营和业务运营</div>
       </div>
-    ))}
+    </div>
+
+    <div className="os-about-statement">
+      <p>我擅长在复杂信息里找到结构</p>
+      <p>把业务问题转化成可执行的数据工作</p>
+      <p>再用 AI 和代码让想法变成真实产品</p>
+    </div>
+
+    <div className="os-quick-grid">
+      <div><span>现在</span><strong>ByteDance</strong><p>AI 数据运营和业务运营</p></div>
+      <div><span>背景</span><strong>智慧农业硕士</strong><p>AI 数据和系统思维</p></div>
+      <div><span>正在做</span><strong>Vibe Coding</strong><p>从想法到可交互作品</p></div>
+    </div>
   </div>
 );
 
-const AIContent = () => (
-  <div className="mac-app-stack">
-    <div className="mac-content-heading">
-      <div><p className="mac-window-eyebrow">AI DATA LOOP</p><h4>让标准持续学习</h4></div>
-      <Bot size={22} />
+const workCards = {
+  ai: {
+    title: "让数据标准持续学习",
+    intro: "把模型需求翻译成可以执行和检查的数据规则",
+    metric: "QUALITY LOOP",
+    color: "violet",
+    steps: [
+      ["Define", "拆解需求并明确规则边界"],
+      ["Review", "识别质量偏差和异常样本"],
+      ["Feedback", "把问题反馈到下一轮生产"],
+    ],
+  },
+  local: {
+    title: "从指标回到真实生活场景",
+    intro: "连接用户需求供给状态和城市生活语境",
+    metric: "CONTEXT MAP",
+    color: "blue",
+    steps: [
+      ["Observe", "发现指标变化和关键问题"],
+      ["Context", "补齐用户商家和场景信息"],
+      ["Action", "形成清晰的运营下一步"],
+    ],
+  },
+  commerce: {
+    title: "在内容商品和转化之间找连接",
+    intro: "理解链路并确定真正值得推进的优先级",
+    metric: "GROWTH PATH",
+    color: "orange",
+    steps: [
+      ["Content", "识别用户正在关注的信号"],
+      ["Product", "连接内容表达和商品价值"],
+      ["Convert", "观察路径并持续调整策略"],
+    ],
+  },
+  agriculture: {
+    title: "保留农业和 AI 的交叉视角",
+    intro: "专业起点不是职业终点但训练了我的系统思维",
+    metric: "FIELD SIGNAL",
+    color: "green",
+    steps: [
+      ["Sense", "理解传感器数据和真实环境"],
+      ["Model", "关注 AI 如何理解复杂场景"],
+      ["System", "把技术放回完整业务系统"],
+    ],
+  },
+} as const;
+
+const WorkContent = ({ id }: { id: "ai" | "local" | "commerce" | "agriculture" }) => {
+  const content = workCards[id];
+  const icons = {
+    ai: <Bot size={22} />,
+    local: <MapPin size={22} />,
+    commerce: <LineChart size={22} />,
+    agriculture: <Leaf size={22} />,
+  };
+
+  return (
+    <div className={`os-work-content is-${content.color}`}>
+      <WindowHeader eyebrow={content.metric} title={content.title} icon={icons[id]} />
+      <p className="os-window-lead">{content.intro}</p>
+      <div className="os-signal-strip">
+        <span>INPUT</span><i /><span>CONTEXT</span><i /><span>ACTION</span>
+      </div>
+      <div className="os-work-steps">
+        {content.steps.map(([title, copy], index) => (
+          <article key={title}>
+            <span>0{index + 1}</span>
+            <div><strong>{title}</strong><p>{copy}</p></div>
+            <Check size={15} />
+          </article>
+        ))}
+      </div>
     </div>
-    <div className="mac-pipeline">
-      <div><span>01</span><strong>Define</strong><p>拆解模糊需求</p></div>
-      <i />
-      <div><span>02</span><strong>Review</strong><p>识别质量偏差</p></div>
-      <i />
-      <div><span>03</span><strong>Loop</strong><p>反馈推动迭代</p></div>
+  );
+};
+
+const BuildContent = () => (
+  <div className="os-build-content">
+    <WindowHeader eyebrow="VIBE CODING CASE 01" title="这个网站本身就是作品" icon={<Code2 size={23} />} />
+    <p className="os-window-lead">我用 Codex 参与需求梳理视觉设计 React 开发浏览器测试和 Git 版本管理</p>
+    <div className="os-build-layout">
+      <div className="os-code-preview">
+        <div><i /><i /><i /><span>leo-homepage</span></div>
+        <pre><span>01</span> define the story{"\n"}<span>02</span> build the system{"\n"}<span>03</span> test the feeling{"\n"}<b>04</b> ship something real</pre>
+        <p><Check size={14} />持续迭代中</p>
+      </div>
+      <div className="os-build-notes">
+        <div><span>角色</span><strong>产品经理和开发者</strong></div>
+        <div><span>技术</span><strong>React TypeScript Motion</strong></div>
+        <div><span>证据</span><strong>Git 历史和线上网站</strong></div>
+        <a href="https://github.com/l1064181273-crypto/leo-homepage" target="_blank" rel="noreferrer">
+          查看 GitHub 仓库 <ArrowUpRight size={15} />
+        </a>
+      </div>
     </div>
-    <div className="mac-quality-line"><span>Quality feedback</span><b><i /></b><strong>Learning</strong></div>
   </div>
 );
 
 const ResumeContent = () => (
-  <div className="mac-app-stack">
-    <div className="mac-content-heading">
-      <div><p className="mac-window-eyebrow">RESUME</p><h4>经历与背景</h4></div>
-      <FileText size={22} />
-    </div>
-    <div className="mac-resume-line">
-      <span>NOW</span><div><strong>ByteDance</strong><p>AI 数据运营 · 本地生活 · 电商运营</p></div>
-    </div>
-    <div className="mac-resume-line">
-      <span>EDU</span><div><strong>智慧农业硕士研究生</strong><p>AI · 数据意识 · 系统思维</p></div>
-    </div>
-  </div>
-);
-
-const BuildContent = () => (
-  <div className="mac-build">
-    <div className="mac-content-heading">
-      <div><p className="mac-window-eyebrow">VIBE CODING</p><h4>leo-homepage</h4></div>
-      <Code2 size={22} />
-    </div>
-    <div className="mac-terminal">
-      <p><span>→</span> frame the idea</p>
-      <p><span>→</span> build with codex</p>
-      <p><span>→</span> test in browser</p>
-      <p className="terminal-success"><Check size={12} /> preview ready on localhost</p>
+  <div className="os-resume-content">
+    <WindowHeader eyebrow="RESUME 2026" title="经历和背景" icon={<UserRound size={22} />} />
+    <div className="os-resume-layout">
+      <aside>
+        <div><span>定位</span><strong>AI 数据运营</strong><p>业务运营</p></div>
+        <div><span>能力</span><strong>结构化思考</strong><p>跨领域学习</p></div>
+        <div><span>工具</span><strong>AI 和 Codex</strong><p>React 和 Git</p></div>
+      </aside>
+      <section>
+        <article>
+          <div><span>NOW</span><small>ByteDance</small></div>
+          <h3>AI 数据运营和业务运营</h3>
+          <p>参与 AI 数据运营 本地生活数据运营和电商运营</p>
+        </article>
+        <article>
+          <div><span>EDU</span><small>Masters Degree</small></div>
+          <h3>智慧农业硕士研究生</h3>
+          <p>关注智慧农业 AI 数据和真实场景之间的联系</p>
+        </article>
+      </section>
     </div>
   </div>
 );
 
-const PhotosContent = () => (
-  <div className="mac-app-stack">
-    <div className="mac-content-heading">
-      <div><p className="mac-window-eyebrow">LIFE ARCHIVE</p><h4>工作之外的我</h4></div>
-      <Image size={22} />
+const LifeContent = () => (
+  <div className="os-life-content">
+    <WindowHeader eyebrow="LIFE ARCHIVE" title="工作之外的我" icon={<Sparkles size={22} />} />
+    <div className="os-life-layout">
+      <img src={lifeImage} alt="Haonan Li 的生活照片" />
+      <div>
+        <p>摄影 音乐 电影 游戏和日常</p>
+        <p>这些兴趣让个人网站不只是一份在线简历</p>
+        <Link to="/photos">打开生活档案 <ChevronRight size={15} /></Link>
+      </div>
     </div>
-    <div className="mac-photo-grid">
-      <span className="photo-tile-one">摄影</span>
-      <span className="photo-tile-two">音乐</span>
-      <span className="photo-tile-three">日常</span>
-    </div>
-    <a className="mac-open-link" href="/photos">打开生活档案 <FolderOpen size={13} /></a>
   </div>
 );
 
-const contentByApp: Record<MacApp, () => JSX.Element> = {
+const GithubContent = () => (
+  <div className="os-link-content">
+    <Github size={44} strokeWidth={1.35} />
+    <p className="os-content-kicker">SOURCE AND HISTORY</p>
+    <h2>每一次改版都有记录</h2>
+    <p>你可以在 GitHub 看到这个网站如何从想法一步步变成现在的样子</p>
+    <a href="https://github.com/l1064181273-crypto/leo-homepage" target="_blank" rel="noreferrer">
+      打开 GitHub <ExternalLink size={15} />
+    </a>
+  </div>
+);
+
+const ContactContent = () => (
+  <div className="os-link-content is-contact">
+    <Mail size={44} strokeWidth={1.35} />
+    <p className="os-content-kicker">LET US CONNECT</p>
+    <h2>从一次真实的交流开始</h2>
+    <p>如果你也关注 AI 数据业务和产品创造欢迎认识我</p>
+    <Link to="/friend">查看联系方式 <ArrowUpRight size={15} /></Link>
+  </div>
+);
+
+const contentByApp: Record<DesktopApp, () => JSX.Element> = {
   about: AboutContent,
-  work: WorkContent,
-  ai: AIContent,
-  resume: ResumeContent,
+  ai: () => <WorkContent id="ai" />,
+  local: () => <WorkContent id="local" />,
+  commerce: () => <WorkContent id="commerce" />,
+  agriculture: () => <WorkContent id="agriculture" />,
   build: BuildContent,
-  photos: PhotosContent,
+  resume: ResumeContent,
+  life: LifeContent,
+  github: GithubContent,
+  contact: ContactContent,
 };
 
 const PortfolioDesk = () => {
-  const [activeApp, setActiveApp] = useState<MacApp | null>(null);
+  const [activeApp, setActiveApp] = useState<DesktopApp | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [time, setTime] = useState(() => new Date());
+  const [canDrag, setCanDrag] = useState(false);
   const desktopRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = window.setInterval(() => setTime(new Date()), 60_000);
-    return () => window.clearInterval(timer);
+    const media = window.matchMedia("(min-width: 721px)");
+    const syncDrag = () => setCanDrag(media.matches);
+    syncDrag();
+    media.addEventListener("change", syncDrag);
+    return () => {
+      window.clearInterval(timer);
+      media.removeEventListener("change", syncDrag);
+    };
   }, []);
 
   const formattedTime = useMemo(() => new Intl.DateTimeFormat("zh-CN", {
+    month: "numeric",
+    day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   }).format(time), [time]);
 
-  const openApp = (id: MacApp) => {
+  const openApp = (id: DesktopApp) => {
     setActiveApp(id);
     setIsMinimized(false);
+    setIsMaximized(false);
   };
 
   const closeApp = () => {
@@ -176,93 +388,116 @@ const PortfolioDesk = () => {
   const activeDefinition = activeApp ? appMap[activeApp] : null;
 
   return (
-    <div className="portfolio-desk mac-desktop" ref={desktopRef} aria-label="可交互的 Haonan OS 桌面">
-      <div className="mac-wallpaper" aria-hidden="true"><i /><i /><i /></div>
-
-      <div className="mac-menubar">
-        <div><span className="mac-menu-logo"><Command size={11} /></span><strong>Haonan OS</strong><span>Portfolio</span><span>View</span></div>
-        <div><Wifi size={12} /><BatteryMedium size={14} /><time>{formattedTime}</time></div>
+    <section className="os-desktop" ref={desktopRef} aria-label="Haonan OS 可交互作品集桌面">
+      <div className="os-wallpaper" aria-hidden="true">
+        <div className="os-field os-field-one" />
+        <div className="os-field os-field-two" />
+        <div className="os-field os-field-three" />
+        <div className="os-contours" />
+        <div className="os-signal-node"><i /><i /><i /><span>DATA SIGNAL</span></div>
       </div>
 
-      <div className="mac-desktop-icons" aria-label="桌面应用">
-        {apps.map((app) => {
-          const Icon = app.icon;
-          return (
-            <motion.button
-              type="button"
-              className="mac-desktop-app"
-              style={{ "--app-x": app.x, "--app-y": app.y } as CSSProperties}
-              key={app.id}
-              onClick={() => openApp(app.id)}
-              whileHover={{ scale: 1.06, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              aria-label={`打开 ${app.label}`}
-            >
-              <span className={`mac-app-icon tone-${app.tone}`}><Icon size={26} /></span>
-              <span className="mac-app-label">{app.label}</span>
-            </motion.button>
-          );
-        })}
+      <header className="os-menubar">
+        <div className="os-menu-profile">
+          <span className="os-menu-mark"><Command size={13} /></span>
+          <strong>Haonan Li</strong>
+          <span>AI Data Operator</span>
+          <span>Vibe Builder</span>
+        </div>
+        <div className="os-menu-status">
+          <a href="https://github.com/l1064181273-crypto" target="_blank" rel="noreferrer" aria-label="打开 GitHub"><Github size={14} /></a>
+          <Radio size={14} />
+          <Wifi size={14} />
+          <BatteryMedium size={17} />
+          <time>{formattedTime}</time>
+        </div>
+      </header>
+
+      <div className="os-desktop-apps" aria-label="桌面应用">
+        {apps.map((app, index) => (
+          <motion.button
+            className={`os-desktop-app app-${app.id}`}
+            style={{ "--app-x": app.x, "--app-y": app.y } as CSSProperties}
+            type="button"
+            key={app.id}
+            onClick={() => openApp(app.id)}
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.42, delay: 0.08 + index * 0.035, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.95 }}
+            aria-label={`打开 ${app.label}`}
+          >
+            <span className="os-app-art"><AppArtwork id={app.id} /></span>
+            <span className="os-app-label">{app.label}</span>
+          </motion.button>
+        ))}
       </div>
 
       <AnimatePresence>
         {activeApp && !isMinimized && ActiveContent && activeDefinition && (
-          <motion.div
-            className={`mac-window ${isMaximized ? "is-maximized" : ""}`}
+          <motion.article
+            className={`os-window ${isMaximized ? "is-maximized" : ""}`}
             key={activeApp}
-            initial={{ opacity: 0, scale: 0.88, y: 18 }}
+            initial={{ opacity: 0, scale: 0.93, y: 28 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.86, y: 28 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            drag={!isMaximized}
+            exit={{ opacity: 0, scale: 0.94, y: 24 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            drag={canDrag && !isMaximized}
             dragConstraints={desktopRef}
             dragMomentum={false}
+            aria-label={`${activeDefinition.label} 窗口`}
           >
-            <div className="mac-window-titlebar">
-              <div className="mac-traffic-lights">
-                <button type="button" className="mac-close" onClick={closeApp} aria-label="关闭窗口" />
-                <button type="button" className="mac-minimize" onClick={() => setIsMinimized(true)} aria-label="最小化窗口" />
-                <button type="button" className="mac-maximize" onClick={() => setIsMaximized((value) => !value)} aria-label="最大化窗口" />
+            <div className="os-window-titlebar">
+              <div className="os-traffic-lights">
+                <button type="button" className="is-close" onClick={closeApp} aria-label="关闭窗口" />
+                <button type="button" className="is-minimize" onClick={() => setIsMinimized(true)} aria-label="最小化窗口" />
+                <button type="button" className="is-maximize" onClick={() => setIsMaximized((value) => !value)} aria-label="最大化窗口" />
               </div>
               <span>{activeDefinition.label}</span>
-              <span className="mac-drag-hint">drag</span>
+              <span>{activeDefinition.eyebrow}</span>
             </div>
-            <div className="mac-window-body"><ActiveContent /></div>
-          </motion.div>
+            <div className="os-window-body"><ActiveContent /></div>
+          </motion.article>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {isMinimized && activeDefinition && (
           <motion.button
+            className="os-minimized-app"
             type="button"
-            className="mac-minimized-pill"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             onClick={() => setIsMinimized(false)}
           >
-            {activeDefinition.label} 已最小化
+            <span className="os-minimized-art"><AppArtwork id={activeDefinition.id} compact /></span>
+            <span>{activeDefinition.label}</span>
           </motion.button>
         )}
       </AnimatePresence>
 
-      {!activeApp && <div className="mac-desktop-tip"><Sparkles size={12} />点击桌面图标打开应用</div>}
+      {!activeApp && (
+        <motion.div className="os-start-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+          <i />点击图标探索我的工作和作品
+        </motion.div>
+      )}
 
-      <div className="mac-dock" role="toolbar" aria-label="应用程序坞">
+      <nav className="os-dock" aria-label="应用程序坞">
         {dockApps.map((id) => {
           const app = appMap[id];
-          const Icon = app.icon;
           const isOpen = activeApp === id;
           return (
-            <button type="button" key={id} onClick={() => openApp(id)} aria-label={`从程序坞打开 ${app.label}`}>
-              <span className={`mac-dock-icon tone-${app.tone}`}><Icon size={22} /></span>
-              {isOpen && <i className="dock-open-dot" />}
+            <button type="button" key={id} onClick={() => openApp(id)} aria-label={`打开 ${app.label}`}>
+              <span className={`os-dock-art app-${id}`}><AppArtwork id={id} compact /></span>
+              <small>{app.label}</small>
+              {isOpen && <i />}
             </button>
           );
         })}
-      </div>
-    </div>
+      </nav>
+    </section>
   );
 };
 
