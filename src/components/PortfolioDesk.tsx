@@ -13,16 +13,24 @@ import {
   Leaf,
   LineChart,
   Mail,
-  Map,
   MapPin,
   Radio,
-  ShoppingBag,
   UserRound,
   Wifi,
 } from "lucide-react";
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import avatarImage from "@/assets/avatar-3d.png";
 import wechatQr from "@/assets/wechat-qr.jpg";
+import aboutAppIcon from "@/assets/macos-icons/about.png";
+import agricultureAppIcon from "@/assets/macos-icons/agriculture.png";
+import aiAppIcon from "@/assets/macos-icons/ai.png";
+import buildAppIcon from "@/assets/macos-icons/build.png";
+import commerceAppIcon from "@/assets/macos-icons/commerce.png";
+import contactAppIcon from "@/assets/macos-icons/contact.png";
+import githubAppIcon from "@/assets/macos-icons/github.png";
+import lifeAppIcon from "@/assets/macos-icons/life.png";
+import localAppIcon from "@/assets/macos-icons/local.png";
+import resumeAppIcon from "@/assets/macos-icons/resume.png";
 import PersonalAtlas from "@/components/PersonalAtlas";
 
 type DesktopApp =
@@ -61,87 +69,21 @@ const apps: AppDefinition[] = [
 const appMap = Object.fromEntries(apps.map((app) => [app.id, app])) as Record<DesktopApp, AppDefinition>;
 const dockApps: DesktopApp[] = ["about", "ai", "build", "life", "contact"];
 
+const appIconMap: Record<DesktopApp, string> = {
+  about: aboutAppIcon,
+  ai: aiAppIcon,
+  local: localAppIcon,
+  commerce: commerceAppIcon,
+  agriculture: agricultureAppIcon,
+  build: buildAppIcon,
+  resume: resumeAppIcon,
+  life: lifeAppIcon,
+  github: githubAppIcon,
+  contact: contactAppIcon,
+};
+
 const AppArtwork = ({ id, compact = false }: { id: DesktopApp; compact?: boolean }) => {
-  const iconSize = compact ? 24 : 29;
-
-  if (id === "about") {
-    return (
-      <span className="os-art-about" aria-hidden="true">
-        <i /><i /><i />
-      </span>
-    );
-  }
-
-  if (id === "life") {
-    return (
-      <span className="os-art-photos" aria-hidden="true">
-        <i /><i /><i /><i /><i /><i /><i /><i />
-      </span>
-    );
-  }
-
-  if (id === "ai") {
-    return (
-      <span className="os-art-ai" aria-hidden="true">
-        <b>AI</b>
-        <i /><i /><i />
-      </span>
-    );
-  }
-
-  if (id === "local") {
-    return (
-      <span className="os-art-local" aria-hidden="true">
-        <Map size={iconSize} strokeWidth={1.55} />
-        <i /><i /><i />
-      </span>
-    );
-  }
-
-  if (id === "commerce") {
-    return (
-      <span className="os-art-commerce" aria-hidden="true">
-        <ShoppingBag size={iconSize} strokeWidth={1.55} />
-        <b>24</b>
-      </span>
-    );
-  }
-
-  if (id === "agriculture") {
-    return (
-      <span className="os-art-agriculture" aria-hidden="true">
-        <Leaf size={iconSize} strokeWidth={1.5} />
-        <i />
-      </span>
-    );
-  }
-
-  if (id === "build") {
-    return (
-      <span className="os-art-build" aria-hidden="true">
-        <small>LEO</small>
-        <b>OS</b>
-        <i />
-      </span>
-    );
-  }
-
-  if (id === "resume") {
-    return (
-      <span className="os-art-resume" aria-hidden="true">
-        <i />
-        <b>Resume</b>
-        <small>AI DATA OPS</small>
-        <em /><em /><em />
-      </span>
-    );
-  }
-
-  if (id === "github") {
-    return <Github size={compact ? 30 : 40} strokeWidth={1.45} aria-hidden="true" />;
-  }
-
-  return <Mail size={compact ? 28 : 37} strokeWidth={1.45} aria-hidden="true" />;
+  return <img className="os-native-app-icon" src={appIconMap[id]} alt="" draggable={false} data-compact={compact || undefined} />;
 };
 
 const WindowHeader = ({ eyebrow, title, icon }: { eyebrow: string; title: string; icon?: ReactNode }) => (
