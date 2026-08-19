@@ -70,8 +70,6 @@ type AtlasCollection = {
   items: AtlasItem[];
 };
 
-export const atlasCoverImages = [daily5, photo7, interstellar, japaneseSushi];
-
 const collections: AtlasCollection[] = [
   {
     id: "notes",

@@ -21,7 +21,7 @@ import {
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import avatarImage from "@/assets/avatar-3d.png";
-import PersonalAtlas, { atlasCoverImages } from "@/components/PersonalAtlas";
+import PersonalAtlas from "@/components/PersonalAtlas";
 
 type DesktopApp =
   | "about"
@@ -68,9 +68,8 @@ const AppArtwork = ({ id, compact = false }: { id: DesktopApp; compact?: boolean
 
   if (id === "life") {
     return (
-      <span className="os-art-atlas" aria-hidden="true">
-        {atlasCoverImages.map((image, index) => <img src={image} alt="" key={image} style={{ "--atlas-index": index } as CSSProperties} />)}
-        <b>ATLAS</b>
+      <span className="os-art-photos" aria-hidden="true">
+        <i /><i /><i /><i /><i /><i /><i /><i />
       </span>
     );
   }
