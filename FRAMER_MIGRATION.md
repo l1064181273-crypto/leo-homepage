@@ -90,3 +90,28 @@ AI Data Operator and Vibe Builder
 8 Test desktop tablet and mobile breakpoints
 9 Publish to a temporary Framer domain for review
 10 Connect the final custom domain only after approval
+
+## Progress snapshot
+
+Updated 2026 08 19
+
+- Free Macxfolio copy is active in the Framer workspace
+- Owner identity is Haonan Li across the responsive home variants
+- Desktop apps are renamed to Profile Resume Signal Lab City Lens Market Flow Field Notes Build Log Personal Atlas Source and Toolkit
+- Main navigation is Profile Work Atlas Build and Connect
+- GitHub is the only verified external shortcut
+- Profile contains the AI Data Operator and Vibe Builder positioning and the three real operations capability areas
+- Fictional email phone number Brooklyn map client names and other template identity leftovers are removed
+- Connect contains the bilingual introduction GitHub and the real WeChat QR image on desktop and mobile
+- Works CMS contains seven records with truthful categories and summaries
+- Personal Atlas uses `src/assets/daily-2.jpg` as its current cover
+- Framer Agent free credits are exhausted but manual editing preview and publishing remain available
+- No publish action has been taken
+
+## Next manual pass
+
+1 Add a multi image Personal Atlas detail layout using the approved daily and photo assets
+2 Replace remaining template project thumbnails with restrained custom covers
+3 Verify every app window from the interactive preview
+4 Check tablet and phone spacing and overflow
+5 Publish to a temporary Framer domain only after explicit approval
