@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { type ElementType, useRef, useState } from "react";
 
-import daily1 from "@/assets/daily-1.jpg";
 import daily2 from "@/assets/daily-2.jpg";
 import daily3 from "@/assets/daily-3.jpg";
 import daily4 from "@/assets/daily-4.jpg";
@@ -28,7 +27,6 @@ import photo8 from "@/assets/photo-8.jpg";
 import photo9 from "@/assets/photo-9.jpg";
 import photo10 from "@/assets/photo-10.jpg";
 import photo11 from "@/assets/photo-11.jpg";
-import photo12 from "@/assets/photo-12.jpg";
 import photo13 from "@/assets/photo-13.jpg";
 import jayChou from "@/assets/artists/jay-chou.jpg";
 import easonChan from "@/assets/artists/eason-chan.jpg";
@@ -79,7 +77,6 @@ const collections: AtlasCollection[] = [
     icon: BookImage,
     visual: "landscape",
     items: [
-      { image: daily1, title: "一起出发", subtitle: "和朋友们的骑行", badge: "CYCLING" },
       { image: daily2, title: "山顶泡面", subtitle: "老君山的简单快乐", badge: "MOUNTAIN" },
       { image: daily3, title: "弦上片刻", subtitle: "妹妹弹古筝给我听", badge: "MUSIC" },
       { image: daily4, title: "深夜实验室", subtitle: "研究生生活切片", badge: "LAB" },
@@ -107,7 +104,6 @@ const collections: AtlasCollection[] = [
       { image: photo9, title: "雪做的玫瑰", subtitle: "Macro", badge: "F18 ISO400" },
       { image: photo10, title: "海边路灯", subtitle: "Minimalism", badge: "F4 ISO50" },
       { image: photo11, title: "湖滨远眺", subtitle: "City", badge: "F8 ISO100" },
-      { image: photo12, title: "听海", subtitle: "Portrait", badge: "F28 ISO100" },
       { image: photo13, title: "雪山飞驰", subtitle: "Sports", badge: "GOPRO" },
     ],
   },
