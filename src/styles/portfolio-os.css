@@ -951,6 +951,7 @@
 
 .os-build-notes a,
 .os-link-content a,
+.os-contact-open,
 .os-life-layout a {
   display: inline-flex;
   align-items: center;
@@ -960,15 +961,18 @@
   padding: 0 16px;
   color: #f1f5ec;
   background: #1c3028;
+  border: 0;
   border-radius: 13px;
   font-size: 11px;
   font-weight: 650;
   text-decoration: none;
+  cursor: pointer;
   transition: transform 160ms ease, background 160ms ease;
 }
 
 .os-build-notes a:hover,
 .os-link-content a:hover,
+.os-contact-open:hover,
 .os-life-layout a:hover {
   background: #29443a;
   transform: translateY(-2px);
@@ -1126,8 +1130,261 @@
   min-width: 190px;
 }
 
+.os-contact-open {
+  min-width: 190px;
+}
+
 .os-link-content.is-contact > svg {
   color: #537967;
+}
+
+.os-contact-details {
+  min-height: 100%;
+}
+
+.os-contact-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.os-contact-detail-head > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  color: #66736c;
+  border: 0;
+  background: transparent;
+  font: 500 10px "Manrope", "Noto Sans SC", sans-serif;
+  cursor: pointer;
+}
+
+.os-contact-detail-head > button:hover {
+  color: #1d332a;
+}
+
+.os-contact-detail-head > span {
+  color: #7d8982;
+}
+
+.os-contact-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.78fr) minmax(350px, 1.22fr);
+  gap: 15px;
+}
+
+.os-contact-profile-card,
+.os-contact-channel-card {
+  min-height: 390px;
+  border-radius: 20px;
+}
+
+.os-contact-profile-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  color: #edf5ee;
+  background: #224c40;
+}
+
+.os-contact-profile-card::after {
+  position: absolute;
+  right: -1px;
+  bottom: 0;
+  width: 100%;
+  height: 47%;
+  content: "";
+  opacity: 0.18;
+  background: repeating-linear-gradient(108deg, transparent 0 20px, rgba(220, 244, 209, 0.42) 21px 22px);
+  clip-path: polygon(28% 100%, 100% 5%, 100% 100%);
+  pointer-events: none;
+}
+
+.os-contact-avatar {
+  position: relative;
+  z-index: 1;
+  width: 82px;
+  height: 82px;
+  margin-bottom: 30px;
+  padding: 4px;
+  border: 1px solid rgba(239, 249, 238, 0.26);
+  border-radius: 23px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.os-contact-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+  background: #dfe9cd;
+}
+
+.os-contact-avatar i {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 17px;
+  height: 17px;
+  border: 4px solid #224c40;
+  border-radius: 50%;
+  background: #d5ee9b;
+}
+
+.os-contact-profile-card > p {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 9px;
+  color: rgba(239, 247, 239, 0.52);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+}
+
+.os-contact-profile-card h2 {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 14px;
+  font-size: 27px;
+  font-weight: 580;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+}
+
+.os-contact-profile-card > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-top: 4px;
+  color: rgba(240, 248, 240, 0.66);
+  font-size: 10px;
+}
+
+.os-contact-tags {
+  position: absolute;
+  z-index: 1;
+  right: 25px;
+  bottom: 26px;
+  left: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.os-contact-tags small {
+  padding: 6px 8px;
+  border: 1px solid rgba(239, 249, 237, 0.16);
+  border-radius: 999px;
+  color: rgba(241, 249, 241, 0.72);
+  font-size: 8px;
+}
+
+.os-contact-channel-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  color: white;
+  background: #173d32;
+}
+
+.os-contact-channel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.os-contact-channel-title > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.os-contact-channel-title > span {
+  color: #d5ee9b;
+}
+
+.os-contact-qr-row {
+  display: grid;
+  grid-template-columns: 154px minmax(0, 1fr);
+  align-items: end;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.os-contact-qr {
+  width: 154px;
+  height: 154px;
+  padding: 8px;
+  border-radius: 16px;
+  background: white;
+}
+
+.os-contact-qr img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9px;
+}
+
+.os-contact-wechat-copy > span,
+.os-contact-wechat-copy > strong {
+  display: block;
+}
+
+.os-contact-wechat-copy > span {
+  margin-bottom: 7px;
+  color: rgba(239, 247, 239, 0.52);
+  font-size: 9px;
+}
+
+.os-contact-wechat-copy > strong {
+  font: 500 18px "IBM Plex Mono", monospace;
+}
+
+.os-contact-wechat-copy button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 17px;
+  color: #19352b;
+  border: 0;
+  border-radius: 10px;
+  background: #d5ee9b;
+  font: 650 10px "Manrope", "Noto Sans SC", sans-serif;
+  cursor: pointer;
+}
+
+.os-contact-channel-card > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 18px;
+  color: rgba(241, 248, 242, 0.78);
+  border-top: 1px solid rgba(239, 248, 239, 0.14);
+  font-size: 10px;
+  text-decoration: none;
+}
+
+.os-contact-channel-card > a > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.os-contact-channel-card > a:hover {
+  color: white;
 }
 
 .os-start-hint,
@@ -2017,6 +2274,66 @@
 
   .os-link-content h2 {
     font-size: 34px;
+  }
+
+  .os-contact-detail-head {
+    margin-bottom: 16px;
+  }
+
+  .os-contact-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .os-contact-profile-card,
+  .os-contact-channel-card {
+    min-height: 0;
+  }
+
+  .os-contact-profile-card {
+    min-height: 235px;
+    padding: 20px;
+  }
+
+  .os-contact-avatar {
+    width: 68px;
+    height: 68px;
+    margin-bottom: 20px;
+    border-radius: 19px;
+  }
+
+  .os-contact-avatar img {
+    border-radius: 14px;
+  }
+
+  .os-contact-profile-card h2 {
+    max-width: 190px;
+    font-size: 23px;
+  }
+
+  .os-contact-tags {
+    right: 18px;
+    bottom: 18px;
+    left: auto;
+    width: 124px;
+  }
+
+  .os-contact-channel-card {
+    padding: 19px;
+  }
+
+  .os-contact-qr-row {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 17px;
+    margin-top: 18px;
+  }
+
+  .os-contact-qr {
+    width: 120px;
+    height: 120px;
+  }
+
+  .os-contact-channel-card > a {
+    margin-top: 18px;
   }
 
   .os-start-hint,

@@ -1,11 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowLeft,
   ArrowUpRight,
   BatteryMedium,
   Bot,
   Check,
   Code2,
   Command,
+  Copy,
   ExternalLink,
   Github,
   Leaf,
@@ -19,8 +21,8 @@ import {
   Wifi,
 } from "lucide-react";
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import avatarImage from "@/assets/avatar-3d.png";
+import wechatQr from "@/assets/wechat-qr.jpg";
 import PersonalAtlas from "@/components/PersonalAtlas";
 
 type DesktopApp =
@@ -309,15 +311,102 @@ const GithubContent = () => (
   </div>
 );
 
-const ContactContent = () => (
-  <div className="os-link-content is-contact">
-    <Mail size={44} strokeWidth={1.35} />
-    <p className="os-content-kicker">LET US CONNECT</p>
-    <h2>从一次真实的交流开始</h2>
-    <p>如果你也关注 AI 数据业务和产品创造欢迎认识我</p>
-    <Link to="/friend">查看联系方式 <ArrowUpRight size={15} /></Link>
-  </div>
-);
+const ContactContent = () => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyWechat = async () => {
+    await navigator.clipboard.writeText("Lntano.");
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      {showDetails ? (
+        <motion.div
+          key="contact-details"
+          className="os-contact-details"
+          initial={{ opacity: 0, x: 18 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 18 }}
+          transition={{ duration: 0.22 }}
+        >
+          <div className="os-contact-detail-head">
+            <button type="button" onClick={() => setShowDetails(false)}>
+              <ArrowLeft size={15} />
+              返回介绍
+            </button>
+            <span>CONTACT CARD</span>
+          </div>
+
+          <div className="os-contact-detail-grid">
+            <article className="os-contact-profile-card">
+              <div className="os-contact-avatar">
+                <img src={avatarImage} alt="Haonan Li" />
+                <i aria-hidden="true" />
+              </div>
+              <p>HAONAN LI</p>
+              <h2>认真认识新的人</h2>
+              <span>AI Data Operator</span>
+              <span>Vibe Builder</span>
+              <div className="os-contact-tags">
+                <small>AI 数据业务</small>
+                <small>本地生活</small>
+                <small>电商运营</small>
+                <small>Vibe Coding</small>
+              </div>
+            </article>
+
+            <article className="os-contact-channel-card">
+              <div className="os-contact-channel-title">
+                <div><Mail size={18} /><span>WECHAT</span></div>
+                <span>PRIMARY</span>
+              </div>
+              <div className="os-contact-qr-row">
+                <div className="os-contact-qr">
+                  <img src={wechatQr} alt="Haonan Li 的微信二维码" />
+                </div>
+                <div className="os-contact-wechat-copy">
+                  <span>微信号</span>
+                  <strong>Lntano.</strong>
+                  <button type="button" onClick={copyWechat} aria-live="polite">
+                    {copied ? <Check size={15} /> : <Copy size={15} />}
+                    {copied ? "已复制" : "复制微信号"}
+                  </button>
+                </div>
+              </div>
+              <a href="https://github.com/l1064181273-crypto" target="_blank" rel="noreferrer">
+                <div>
+                  <Github size={18} />
+                  <span>查看 GitHub 构建记录</span>
+                </div>
+                <ArrowUpRight size={16} />
+              </a>
+            </article>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="contact-intro"
+          className="os-link-content is-contact"
+          initial={{ opacity: 0, x: -18 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -18 }}
+          transition={{ duration: 0.22 }}
+        >
+          <Mail size={44} strokeWidth={1.35} />
+          <p className="os-content-kicker">LET US CONNECT</p>
+          <h2>从一次真实的交流开始</h2>
+          <p>如果你也关注 AI 数据业务和产品创造欢迎认识我</p>
+          <button className="os-contact-open" type="button" onClick={() => setShowDetails(true)}>
+            查看联系方式 <ArrowUpRight size={15} />
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const contentByApp: Record<DesktopApp, () => JSX.Element> = {
   about: AboutContent,
