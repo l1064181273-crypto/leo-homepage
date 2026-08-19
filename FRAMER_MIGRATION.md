@@ -104,14 +104,14 @@ Updated 2026 08 19
 - Fictional email phone number Brooklyn map client names and other template identity leftovers are removed
 - Connect contains the bilingual introduction GitHub and the real WeChat QR image on desktop and mobile
 - Works CMS contains seven records with truthful categories and summaries
-- Personal Atlas uses `src/assets/daily-2.jpg` as its current cover
+- Personal Atlas uses `src/assets/daily-2.jpg` as its cover and four approved daily images in the detail record
+- Template client names challenges and final thoughts are replaced across all seven Works records
 - Framer Agent free credits are exhausted but manual editing preview and publishing remain available
 - No publish action has been taken
 
 ## Next manual pass
 
-1 Add a multi image Personal Atlas detail layout using the approved daily and photo assets
-2 Replace remaining template project thumbnails with restrained custom covers
-3 Verify every app window from the interactive preview
-4 Check tablet and phone spacing and overflow
-5 Publish to a temporary Framer domain only after explicit approval
+1 Replace remaining template project thumbnails with restrained custom covers
+2 Verify every app window from the interactive preview
+3 Check tablet and phone spacing and overflow
+4 Publish to a temporary Framer domain only after explicit approval
