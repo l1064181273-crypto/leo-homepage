@@ -444,7 +444,7 @@
   margin: 18px 0 28px;
   color: var(--pf-ink);
   font-family: "Manrope", "Noto Sans SC", sans-serif;
-  font-size: clamp(3.25rem, 6vw, 6.65rem);
+  font-size: clamp(3.1rem, 5.2vw, 5.65rem);
   font-weight: 600;
   letter-spacing: -0.075em;
   line-height: 0.98;
@@ -452,6 +452,10 @@
 
 .hero-copy h1 span {
   display: block;
+  white-space: nowrap;
+}
+
+.hero-copy h1 .hero-title-outline {
   color: transparent;
   -webkit-text-stroke: 1.4px var(--pf-ink);
 }
@@ -1197,7 +1201,7 @@
   .portfolio-nav nav a:not(.nav-contact) { display: none; }
   .portfolio-hero { min-height: auto; padding: 52px 0 72px; }
   .hero-status { margin-bottom: 36px; }
-  .hero-copy h1 { font-size: clamp(3.15rem, 14vw, 5.4rem); }
+  .hero-copy h1 { font-size: clamp(2.85rem, 11.5vw, 5rem); }
   .hero-footnote { margin-top: 38px; }
   .desk-note { justify-content: flex-start; margin-left: 8px; }
   .portfolio-section { padding: 88px 0; }
@@ -1214,7 +1218,7 @@
 @media (max-width: 560px) {
   .wordmark-copy small { display: none; }
   .portfolio-nav nav .nav-contact { padding: 9px 12px; }
-  .hero-copy h1 { font-size: clamp(2.75rem, 14vw, 4.2rem); }
+  .hero-copy h1 { font-size: clamp(2.35rem, 11.5vw, 3.8rem); }
   .hero-copy h1 span { -webkit-text-stroke-width: 1px; }
   .hero-kicker { font-size: 8px; }
   .hero-intro { font-size: 14px; }

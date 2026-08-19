@@ -101,8 +101,8 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
             >
-              让数据工作，
-              <span>也让想法上线。</span>
+              <span className="hero-title-solid">让数据工作</span>
+              <span className="hero-title-outline">也让想法上线</span>
             </motion.h1>
 
             <motion.p
