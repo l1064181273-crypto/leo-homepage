@@ -145,7 +145,7 @@ const Index = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="desk-note"><span>INTERACTIVE</span>点击底部图标切换工作模式</div>
+            <div className="desk-note"><span>INTERACTIVE</span>点击桌面图标或程序坞打开应用</div>
             <PortfolioDesk />
           </motion.div>
         </section>
