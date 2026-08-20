@@ -93,7 +93,7 @@ AI Data Operator and Vibe Builder
 
 ## Progress snapshot
 
-Updated 2026 08 19
+Updated 2026 08 20
 
 - Free Macxfolio copy is active in the Framer workspace
 - Owner identity is Haonan Li across the responsive home variants
@@ -107,14 +107,26 @@ Updated 2026 08 19
 - Personal Atlas uses `src/assets/daily-2.jpg` as its cover and four approved daily images in the detail record
 - Template client names challenges and final thoughts are replaced across all seven Works records
 - Framer Agent free credits are exhausted but manual editing preview and publishing remain available
-- Interactive preview validation found that the Home Profile shortcut still opens a separate legacy window copy with the old About Me introduction email phone and social links
-- The legacy runtime window is not coming from the updated Pages About source component and remains present after editor reload preview reload and breakpoint checks
+- The Desktop Profile shortcut overlay now uses the Desktop Window About variant instead of the legacy Home variant
+- The Phone Profile shortcut overlay now uses the Mobile Window About Me variant instead of the legacy Home variant
+- Tablet inherits the corrected About binding
+- The Home Navigation social link group is hidden in both desktop and mobile component variants
+- LinkedIn X and Instagram no longer appear in the rendered canvas and GitHub is the only remaining external link
+- The previous legacy Profile window blocker is resolved at the overlay binding level
 - No publish action has been taken
+
+## Curated personal media candidates
+
+- Music covers `src/assets/artists/linkin-park.jpg` `src/assets/artists/eason-chan.jpg` `src/assets/artists/jay-chou.jpg` and `src/assets/artists/taylor-swift.png`
+- Game images `src/assets/game-wukong.jpg` `src/assets/game-eldenring.jpg` `src/assets/game-cyberpunk.jpg` and `src/assets/game-crossfire.jpg`
+- Film posters `src/assets/films/interstellar.jpg` `src/assets/films/inception.jpg` `src/assets/films/the-matrix.jpg` and `src/assets/films/spirited-away.jpg`
+- Template photography may remain only as clearly curated visual reference material and must not be presented as Haonan's original photography
 
 ## Next manual pass
 
-1 Rebind the Home Profile shortcut to the updated Pages About component or replace the legacy overlay instance
-2 Run the same binding check for Connect Resume and every project shortcut
-3 Replace remaining template project thumbnails with restrained custom covers
-4 Check desktop tablet and phone spacing and overflow
-5 Publish to a temporary Framer domain only after explicit approval
+1 Run the same binding check for Connect Resume and every project shortcut
+2 Build the Personal Atlas content structure around Photography Music Games and Daily Life
+3 Upload only approved local music game film and photography assets after explicit confirmation
+4 Replace remaining template project thumbnails with restrained custom covers
+5 Check desktop tablet and phone spacing and overflow
+6 Publish to a temporary Framer domain only after explicit approval
