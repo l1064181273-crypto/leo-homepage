@@ -2699,7 +2699,7 @@
   font-weight: 500;
 }
 
-.os-desktop-app:focus-visible {
+.portfolio-os-page .os-desktop-app:focus-visible {
   outline: none;
 }
 
@@ -2712,7 +2712,7 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
 
-.atlas-sidebar nav button:focus-visible {
+.portfolio-os-page .atlas-sidebar nav button:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 2px rgba(82, 110, 95, 0.3);
 }
@@ -2732,5 +2732,26 @@
 
   .os-desktop-apps {
     inset: 36px 0 0;
+  }
+
+  .os-wallpaper::before {
+    background-size: auto;
+  }
+
+  .os-desktop .os-app-art {
+    width: clamp(48px, 14vw, 58px);
+    height: clamp(48px, 14vw, 58px);
+  }
+
+  .os-desktop .os-dock-art {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-height: 700px) and (min-width: 721px) {
+  .os-desktop .os-app-art {
+    width: 62px;
+    height: 62px;
   }
 }

@@ -137,6 +137,8 @@ Migration branch `macos-github-migration`
 - Personal Atlas contains Daybook Visual Studies Sound Archive Cinema Index Game Worlds and Table Log
 - The two previously removed personal images remain excluded from Personal Atlas
 - The production build passes after the first migration pass
+- Desktop tablet and phone layouts have been rendered side by side for visual verification
+- Mobile icon scaling Profile layout Personal Atlas navigation and wallpaper rendering are verified
 - Local preview runs at `http://127.0.0.1:3001/`
 
 ## Curated personal media candidates
