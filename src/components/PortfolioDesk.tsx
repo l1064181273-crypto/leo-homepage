@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowUpRight,
-  BatteryMedium,
   Bot,
   Check,
   Code2,
@@ -13,23 +12,13 @@ import {
   LineChart,
   Mail,
   MapPin,
-  Radio,
   UserRound,
-  Wifi,
 } from "lucide-react";
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import avatarImage from "@/assets/avatar-3d.png";
 import wechatQr from "@/assets/wechat-qr.jpg";
-import aboutAppIcon from "@/assets/macos-icons/about.png";
-import agricultureAppIcon from "@/assets/macos-icons/agriculture.png";
-import aiAppIcon from "@/assets/macos-icons/ai.png";
-import buildAppIcon from "@/assets/macos-icons/build.png";
-import commerceAppIcon from "@/assets/macos-icons/commerce.png";
 import contactAppIcon from "@/assets/macos-icons/contact.png";
 import githubAppIcon from "@/assets/macos-icons/github.png";
-import lifeAppIcon from "@/assets/macos-icons/life.png";
-import localAppIcon from "@/assets/macos-icons/local.png";
-import resumeAppIcon from "@/assets/macos-icons/resume.png";
 import PersonalAtlas from "@/components/PersonalAtlas";
 
 type DesktopApp =
@@ -39,9 +28,12 @@ type DesktopApp =
   | "commerce"
   | "agriculture"
   | "build"
+  | "music"
+  | "cats"
   | "resume"
   | "life"
   | "github"
+  | "source"
   | "contact";
 
 type AppDefinition = {
@@ -50,39 +42,74 @@ type AppDefinition = {
   eyebrow: string;
   x: string;
   y: string;
+  href?: string;
+  desktop?: boolean;
 };
 
 const apps: AppDefinition[] = [
-  { id: "about", label: "Profile", eyebrow: "IDENTITY", x: "4%", y: "11%" },
-  { id: "ai", label: "Signal Lab", eyebrow: "AI DATA OPERATIONS", x: "31%", y: "9%" },
-  { id: "local", label: "City Lens", eyebrow: "LOCAL SERVICES", x: "61%", y: "15%" },
-  { id: "commerce", label: "Market Flow", eyebrow: "E COMMERCE", x: "87%", y: "9%" },
-  { id: "agriculture", label: "Field Notes", eyebrow: "SMART AGRICULTURE AI", x: "12%", y: "47%" },
-  { id: "build", label: "Build Log", eyebrow: "VIBE CODING", x: "42%", y: "49%" },
-  { id: "resume", label: "Resume", eyebrow: "CAREER", x: "74%", y: "45%" },
-  { id: "life", label: "Personal Atlas", eyebrow: "COLLECTIONS", x: "89%", y: "62%" },
-  { id: "github", label: "Source", eyebrow: "GITHUB", x: "25%", y: "68%" },
-  { id: "contact", label: "Connect", eyebrow: "HELLO", x: "59%", y: "68%" },
+  { id: "github", label: "GitHub", eyebrow: "EXTERNAL", x: "2%", y: "3%", href: "https://github.com/l1064181273-crypto/leo-homepage" },
+  { id: "music", label: "Music", eyebrow: "SOUND ARCHIVE", x: "25%", y: "17%" },
+  { id: "resume", label: "Resume", eyebrow: "CAREER", x: "47%", y: "4%" },
+  { id: "build", label: "Build Log", eyebrow: "VIBE CODING", x: "75%", y: "15%" },
+  { id: "local", label: "City Lens", eyebrow: "LOCAL SERVICES", x: "8%", y: "43%" },
+  { id: "ai", label: "Signal Lab", eyebrow: "AI DATA OPERATIONS", x: "50%", y: "32%" },
+  { id: "commerce", label: "Market Flow", eyebrow: "E COMMERCE", x: "22%", y: "63%" },
+  { id: "source", label: "Source", eyebrow: "GITHUB", x: "42%", y: "70%" },
+  { id: "agriculture", label: "Field Notes", eyebrow: "SMART AGRICULTURE AI", x: "68%", y: "58%" },
+  { id: "cats", label: "Herding cats", eyebrow: "PLAYGROUND", x: "83%", y: "62%" },
+  { id: "about", label: "Profile", eyebrow: "IDENTITY", x: "2%", y: "72%" },
+  { id: "life", label: "Personal Atlas", eyebrow: "COLLECTIONS", x: "91%", y: "72%" },
+  { id: "contact", label: "Connect", eyebrow: "HELLO", x: "58%", y: "76%", desktop: false },
 ];
 
 const appMap = Object.fromEntries(apps.map((app) => [app.id, app])) as Record<DesktopApp, AppDefinition>;
-const dockApps: DesktopApp[] = ["about", "ai", "build", "life", "contact"];
+const dockApps: DesktopApp[] = ["resume", "about", "life", "build", "contact"];
+
+const macxfolioAssets = {
+  about: "https://framerusercontent.com/images/cJYhDULgupLu6dqAItTs6sT1xE.png?width=2469&height=2469",
+  music: "https://framerusercontent.com/images/YqNlwVIK7rA6jF6BGN2QuviBMXk.png?width=2478&height=2472",
+  resume: "https://framerusercontent.com/images/4g2FaJC8YD1UjBtuLdnGpDvQ.png?width=2466&height=2475",
+  cats: "https://framerusercontent.com/images/NBs3etFTadPxbSVNjpbB56GouU.png?width=478&height=561",
+  source: "https://framerusercontent.com/images/PWuUiO2aouvctH4NNK1MNPe9o.png?width=312&height=312",
+  local: "https://framerusercontent.com/images/xybTQ8M8gQkUOzQ57Horl5riXsc.png?width=736&height=547",
+  commerce: "https://framerusercontent.com/images/HcRlNxppO9AMHI0KhcKJtc3wvO0.png?width=1199&height=1740",
+  ai: "https://framerusercontent.com/images/oPWqkM4Rtq6IW8rAis6I2SC7CfE.png?width=1200&height=1200",
+  agriculture: "https://framerusercontent.com/images/BL7zv9EGej7d1dYE5rLEhB911pI.png?width=735&height=490",
+  build: "https://framerusercontent.com/images/uy87JonjAVE23J7z8J81GA0A0U.png?width=750&height=994",
+  life: "https://framerusercontent.com/images/JNuFoJNZB5xor0NzSTUqoFLBk.png?width=2478&height=2502",
+  dockFinder: "https://framerusercontent.com/images/EVSY45U60gTa9UjvovzPTZx7Hw.png?width=180&height=180",
+  dockPhotos: "https://framerusercontent.com/images/yFESVGBo8X29XNkGZlJPVzWkQgI.png?width=180&height=180",
+  dockFinalCut: "https://framerusercontent.com/images/qQXlQqG22a2tDAPOZckDUXrENk.png?width=177&height=180",
+  dockMail: "https://framerusercontent.com/images/ZAH3C8amQUigspCjEG1FJWPjI.png?width=180&height=180",
+} as const;
 
 const appIconMap: Record<DesktopApp, string> = {
-  about: aboutAppIcon,
-  ai: aiAppIcon,
-  local: localAppIcon,
-  commerce: commerceAppIcon,
-  agriculture: agricultureAppIcon,
-  build: buildAppIcon,
-  resume: resumeAppIcon,
-  life: lifeAppIcon,
+  about: macxfolioAssets.about,
+  ai: macxfolioAssets.ai,
+  local: macxfolioAssets.local,
+  commerce: macxfolioAssets.commerce,
+  agriculture: macxfolioAssets.agriculture,
+  build: macxfolioAssets.build,
+  music: macxfolioAssets.music,
+  cats: macxfolioAssets.cats,
+  resume: macxfolioAssets.resume,
+  life: macxfolioAssets.life,
   github: githubAppIcon,
+  source: macxfolioAssets.source,
   contact: contactAppIcon,
 };
 
+const dockIconMap: Partial<Record<DesktopApp, string>> = {
+  resume: macxfolioAssets.resume,
+  about: macxfolioAssets.dockFinder,
+  life: macxfolioAssets.dockPhotos,
+  build: macxfolioAssets.dockFinalCut,
+  contact: macxfolioAssets.dockMail,
+};
+
 const AppArtwork = ({ id, compact = false }: { id: DesktopApp; compact?: boolean }) => {
-  return <img className="os-native-app-icon" src={appIconMap[id]} alt="" draggable={false} data-compact={compact || undefined} />;
+  const source = compact && dockIconMap[id] ? dockIconMap[id] : appIconMap[id];
+  return <img className="os-native-app-icon" src={source} alt="" draggable={false} data-compact={compact || undefined} />;
 };
 
 const WindowHeader = ({ eyebrow, title, icon }: { eyebrow: string; title: string; icon?: ReactNode }) => (
@@ -218,6 +245,78 @@ const BuildContent = () => (
     </div>
   </div>
 );
+
+const CatContent = () => (
+  <div className="os-cat-content">
+    <img src="https://webneko.net/lucky/sleep1.gif" alt="像素猫" />
+    <p className="os-content-kicker">PLAYGROUND</p>
+    <h2>Herding cats</h2>
+    <p>在数据和代码之外留一个可以放松的小角落</p>
+    <span>打开桌面左下角的开关就能让它继续待在桌面上</span>
+  </div>
+);
+
+type ProjectApp = "ai" | "local" | "commerce" | "agriculture" | "build" | "source";
+
+const projectApps: ProjectApp[] = ["ai", "local", "commerce", "agriculture", "build", "source"];
+
+const projectIconMap: Record<ProjectApp, ReactNode> = {
+  ai: <Bot size={17} />,
+  local: <MapPin size={17} />,
+  commerce: <LineChart size={17} />,
+  agriculture: <Leaf size={17} />,
+  build: <Code2 size={17} />,
+  source: <Github size={17} />,
+};
+
+const ProjectHub = ({ initialId }: { initialId: ProjectApp }) => {
+  const [selectedId, setSelectedId] = useState<ProjectApp>(initialId);
+  const SelectedContent = selectedId === "build"
+    ? BuildContent
+    : selectedId === "source"
+      ? GithubContent
+      : () => <WorkContent id={selectedId} />;
+
+  return (
+    <div className="os-project-hub">
+      <aside className="os-project-sidebar">
+        <div className="os-project-sidebar-heading">
+          <span>WORK</span>
+          <strong>Projects</strong>
+        </div>
+        <nav aria-label="专业项目模块">
+          {projectApps.map((id) => (
+            <button
+              type="button"
+              key={id}
+              className={selectedId === id ? "is-active" : ""}
+              onClick={() => setSelectedId(id)}
+            >
+              {projectIconMap[id]}
+              <span>{appMap[id].label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="os-project-sidebar-meta">
+          <span>HAONAN LI</span>
+          <span>6 PROJECTS</span>
+        </div>
+      </aside>
+      <section className="os-project-main" key={selectedId}>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22 }}
+        >
+          <div className="os-project-breadcrumb">
+            <span>User</span><i /><span>Projects</span><i /><strong>{appMap[selectedId].label}</strong>
+          </div>
+          <SelectedContent />
+        </motion.div>
+      </section>
+    </div>
+  );
+};
 
 const ResumeContent = () => (
   <div className="os-resume-content">
@@ -355,14 +454,17 @@ const ContactContent = () => {
 
 const contentByApp: Record<DesktopApp, () => JSX.Element> = {
   about: AboutContent,
-  ai: () => <WorkContent id="ai" />,
-  local: () => <WorkContent id="local" />,
-  commerce: () => <WorkContent id="commerce" />,
-  agriculture: () => <WorkContent id="agriculture" />,
-  build: BuildContent,
+  ai: () => <ProjectHub initialId="ai" />,
+  local: () => <ProjectHub initialId="local" />,
+  commerce: () => <ProjectHub initialId="commerce" />,
+  agriculture: () => <ProjectHub initialId="agriculture" />,
+  build: () => <ProjectHub initialId="build" />,
+  music: () => <PersonalAtlas initialCollectionId="sound" />,
+  cats: CatContent,
   resume: ResumeContent,
   life: PersonalAtlas,
   github: GithubContent,
+  source: () => <ProjectHub initialId="source" />,
   contact: ContactContent,
 };
 
@@ -371,6 +473,7 @@ const PortfolioDesk = () => {
   const [isBooting, setIsBooting] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [showCat, setShowCat] = useState(true);
   const [time, setTime] = useState(() => new Date());
   const [canDrag, setCanDrag] = useState(false);
   const desktopRef = useRef<HTMLDivElement>(null);
@@ -412,6 +515,8 @@ const PortfolioDesk = () => {
 
   const ActiveContent = activeApp ? contentByApp[activeApp] : null;
   const activeDefinition = activeApp ? appMap[activeApp] : null;
+  const isAtlasApp = activeApp === "life" || activeApp === "music";
+  const isProjectApp = activeApp ? projectApps.includes(activeApp as ProjectApp) : false;
 
   return (
     <section className="os-desktop" ref={desktopRef} aria-label="Haonan OS 可交互作品集桌面">
@@ -455,38 +560,57 @@ const PortfolioDesk = () => {
         </div>
         <div className="os-menu-status">
           <a href="https://github.com/l1064181273-crypto" target="_blank" rel="noreferrer" aria-label="打开 GitHub"><Github size={14} /></a>
-          <Radio size={14} />
-          <Wifi size={14} />
-          <BatteryMedium size={17} />
           <time>{formattedTime}</time>
         </div>
       </header>
 
       <div className="os-desktop-apps" aria-label="桌面应用">
-        {apps.map((app, index) => (
-          <motion.button
-            className={`os-desktop-app app-${app.id}`}
-            style={{ "--app-x": app.x, "--app-y": app.y } as CSSProperties}
-            type="button"
-            key={app.id}
-            onClick={() => openApp(app.id)}
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.42, delay: 0.08 + index * 0.035, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -4 }}
-            whileTap={{ scale: 0.95 }}
-            aria-label={`打开 ${app.label}`}
-          >
-            <span className="os-app-art"><AppArtwork id={app.id} /></span>
-            <span className="os-app-label">{app.label}</span>
-          </motion.button>
-        ))}
+        {apps.filter((app) => app.desktop !== false).map((app, index) => {
+          const visual = (
+            <>
+              <span className="os-app-art"><AppArtwork id={app.id} /></span>
+              <span className="os-app-label">{app.label}</span>
+            </>
+          );
+          const sharedMotion = {
+            className: `os-desktop-app app-${app.id}`,
+            style: { "--app-x": app.x, "--app-y": app.y } as CSSProperties,
+            initial: { opacity: 0, scale: 0.9, y: 10 },
+            animate: { opacity: 1, scale: 1, y: 0 },
+            transition: { duration: 0.42, delay: 0.08 + index * 0.035, ease: [0.22, 1, 0.36, 1] as const },
+            whileHover: { y: -4 },
+            whileTap: { scale: 0.95 },
+          };
+
+          return app.href ? (
+            <motion.a
+              {...sharedMotion}
+              key={app.id}
+              href={app.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`打开 ${app.label}`}
+            >
+              {visual}
+            </motion.a>
+          ) : (
+            <motion.button
+              {...sharedMotion}
+              type="button"
+              key={app.id}
+              onClick={() => openApp(app.id)}
+              aria-label={`打开 ${app.label}`}
+            >
+              {visual}
+            </motion.button>
+          );
+        })}
       </div>
 
       <AnimatePresence>
         {activeApp && !isMinimized && ActiveContent && activeDefinition && (
           <motion.article
-            className={`os-window ${activeApp === "life" ? "is-atlas-window" : ""} ${isMaximized ? "is-maximized" : ""}`}
+            className={`os-window ${isAtlasApp ? "is-atlas-window" : ""} ${isProjectApp ? "is-project-window" : ""} ${isMaximized ? "is-maximized" : ""}`}
             key={activeApp}
             initial={{ opacity: 0, scale: 0.93, y: 28 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -506,7 +630,7 @@ const PortfolioDesk = () => {
               <span>{activeDefinition.label}</span>
               <span>{activeDefinition.eyebrow}</span>
             </div>
-            <div className={`os-window-body ${activeApp === "life" ? "is-atlas" : ""}`}><ActiveContent /></div>
+            <div className={`os-window-body ${isAtlasApp ? "is-atlas" : ""} ${isProjectApp ? "is-project" : ""}`}><ActiveContent /></div>
           </motion.article>
         )}
       </AnimatePresence>
@@ -527,11 +651,29 @@ const PortfolioDesk = () => {
         )}
       </AnimatePresence>
 
-      {!activeApp && (
-        <motion.div className="os-start-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-          <i />点击图标探索我的工作和作品
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {showCat && (
+          <motion.img
+            className="os-neko"
+            src="https://webneko.net/lucky/sleep1.gif"
+            alt="像素猫"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+          />
+        )}
+      </AnimatePresence>
+
+      <button
+        className="os-cat-toggle"
+        type="button"
+        role="switch"
+        aria-checked={showCat}
+        onClick={() => setShowCat((value) => !value)}
+      >
+        <span>You like cats</span>
+        <i data-active={showCat || undefined}><b /></i>
+      </button>
 
       <nav className="os-dock" aria-label="应用程序坞">
         {dockApps.map((id) => {

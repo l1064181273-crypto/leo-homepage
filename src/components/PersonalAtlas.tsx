@@ -171,8 +171,8 @@ const collections: AtlasCollection[] = [
   },
 ];
 
-const PersonalAtlas = () => {
-  const [activeId, setActiveId] = useState<AtlasCollection["id"]>("notes");
+const PersonalAtlas = ({ initialCollectionId = "notes" }: { initialCollectionId?: AtlasCollection["id"] }) => {
+  const [activeId, setActiveId] = useState<AtlasCollection["id"]>(initialCollectionId);
   const [selectedItem, setSelectedItem] = useState<AtlasItem | null>(null);
   const contentRef = useRef<HTMLElement>(null);
   const activeCollection = collections.find((collection) => collection.id === activeId) ?? collections[0];

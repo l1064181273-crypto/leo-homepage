@@ -140,6 +140,11 @@ Migration branch `macos-github-migration`
 - Desktop tablet and phone layouts have been rendered side by side for visual verification
 - Mobile icon scaling Profile layout Personal Atlas navigation and wallpaper rendering are verified
 - Local preview runs at `http://127.0.0.1:3001/`
+- The strict visual pass now follows the official Macxfolio live preview as the direct reference rather than only borrowing its information architecture
+- The official blue wallpaper application thumbnail artwork Dock icons icon scale spacing cat switch and ambient sprite are restored in the GitHub version
+- Signal Lab City Lens Market Flow Field Notes Build Log and Source share one project window with the same six item sidebar navigation pattern as the Framer template
+- Music opens Sound Archive while Personal Atlas opens Daybook so both shortcuts lead to intentional collection views
+- The project window is verified at desktop tablet and phone breakpoints with the mobile sidebar transformed into a horizontal module bar
 
 ## Curated personal media candidates
 
@@ -150,8 +155,7 @@ Migration branch `macos-github-migration`
 
 ## Next code pass
 
-1 Refine the professional case windows and Resume spacing
-2 Verify every desktop shortcut and window control
-3 Check desktop tablet and phone spacing and overflow
-4 Replace the temporary portrait only after an approved direction exists
-5 Publish from GitHub only after explicit approval
+1 Replace the temporary portrait only after an approved direction exists
+2 Replace or localize remote template artwork only when the final content direction is approved
+3 Complete final copy editing and shortcut by shortcut content review
+4 Publish from GitHub only after explicit approval
