@@ -93,7 +93,7 @@ AI Data Operator and Vibe Builder
 
 ## Progress snapshot
 
-Updated 2026 08 21
+Updated 2026 08 22
 
 - Free Macxfolio copy is active in the Framer workspace
 - Owner identity is Haonan Li across the responsive home variants
@@ -119,6 +119,11 @@ Updated 2026 08 21
 - Resume experience is reframed around current ByteDance AI data operations smart agriculture research and this portfolio build
 - Resume core skills now show AI Data Ops Local Services E Commerce Vibe Coding Prompt Design Data Quality Smart Agriculture Codex and Framer
 - The shared Resume component changes are confirmed in both Desktop and Mobile rendered variants
+- Personal Atlas now uses the former Toolkit blue folder shortcut icon across Desktop Tablet and Phone
+- The repurposed folder shortcut opens the existing Personal Atlas Sorae content variant
+- The previous photo based Personal Atlas shortcut layers are removed through the responsive inheritance structure
+- The Toolkit label shortcut and Desktop Window Resources variant are removed
+- Final rendered checks show one Personal Atlas shortcut per breakpoint no Toolkit label and no Resources window variant
 - No publish action has been taken
 
 ## Curated personal media candidates
