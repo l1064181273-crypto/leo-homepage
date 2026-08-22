@@ -71,7 +71,7 @@ type AtlasCollection = {
 const collections: AtlasCollection[] = [
   {
     id: "notes",
-    name: "Field Notes",
+    name: "Daybook",
     kicker: "EVERYDAY OBSERVATIONS",
     description: "把旅行朋友实验室和普通日子保存成可以重新打开的生活记录",
     icon: BookImage,

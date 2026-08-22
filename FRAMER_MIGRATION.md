@@ -97,7 +97,7 @@ Updated 2026 08 22
 
 - Free Macxfolio copy is active in the Framer workspace
 - Owner identity is Haonan Li across the responsive home variants
-- Desktop apps are renamed to Profile Resume Signal Lab City Lens Market Flow Field Notes Build Log Personal Atlas Source and Toolkit
+- Desktop apps are renamed to Profile Resume Signal Lab City Lens Market Flow Field Notes Build Log Personal Atlas Source and Connect
 - Main navigation is Profile Work Atlas Build and Connect
 - GitHub is the only verified external shortcut
 - Profile contains the AI Data Operator and Vibe Builder positioning and the three real operations capability areas
@@ -126,6 +126,19 @@ Updated 2026 08 22
 - Final rendered checks show one Personal Atlas shortcut per breakpoint no Toolkit label and no Resources window variant
 - No publish action has been taken
 
+## GitHub code migration
+
+Migration branch `macos-github-migration`
+
+- The Framer version remains frozen as the visual and interaction reference
+- The React desktop now uses the approved Framer application names and information architecture
+- The menu bar now prioritizes Haonan Li and the currently active application
+- The wallpaper startup sequence desktop icons Dock draggable windows minimize maximize and close interactions are implemented locally
+- Personal Atlas contains Daybook Visual Studies Sound Archive Cinema Index Game Worlds and Table Log
+- The two previously removed personal images remain excluded from Personal Atlas
+- The production build passes after the first migration pass
+- Local preview runs at `http://127.0.0.1:3001/`
+
 ## Curated personal media candidates
 
 - Music covers `src/assets/artists/linkin-park.jpg` `src/assets/artists/eason-chan.jpg` `src/assets/artists/jay-chou.jpg` and `src/assets/artists/taylor-swift.png`
@@ -133,12 +146,10 @@ Updated 2026 08 22
 - Film posters `src/assets/films/interstellar.jpg` `src/assets/films/inception.jpg` `src/assets/films/the-matrix.jpg` and `src/assets/films/spirited-away.jpg`
 - Template photography may remain only as clearly curated visual reference material and must not be presented as Haonan's original photography
 
-## Next manual pass
+## Next code pass
 
-1 Run the same binding check for Connect and every project shortcut
-2 Refine Resume spacing now that the copy is shorter and bilingual
-3 Build the Personal Atlas content structure around Photography Music Games and Daily Life
-4 Upload only approved local music game film and photography assets after explicit confirmation
-5 Replace remaining template project thumbnails with restrained custom covers
-6 Check desktop tablet and phone spacing and overflow
-7 Publish to a temporary Framer domain only after explicit approval
+1 Refine the professional case windows and Resume spacing
+2 Verify every desktop shortcut and window control
+3 Check desktop tablet and phone spacing and overflow
+4 Replace the temporary portrait only after an approved direction exists
+5 Publish from GitHub only after explicit approval

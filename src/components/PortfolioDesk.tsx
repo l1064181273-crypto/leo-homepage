@@ -6,7 +6,6 @@ import {
   Bot,
   Check,
   Code2,
-  Command,
   Copy,
   ExternalLink,
   Github,
@@ -54,16 +53,16 @@ type AppDefinition = {
 };
 
 const apps: AppDefinition[] = [
-  { id: "about", label: "About Me", eyebrow: "PROFILE", x: "4%", y: "11%" },
-  { id: "ai", label: "AI Data", eyebrow: "OPERATIONS", x: "31%", y: "9%" },
-  { id: "local", label: "Local Life", eyebrow: "BUSINESS", x: "61%", y: "15%" },
-  { id: "commerce", label: "E Commerce", eyebrow: "GROWTH", x: "87%", y: "9%" },
-  { id: "agriculture", label: "Smart Ag AI", eyebrow: "RESEARCH", x: "12%", y: "47%" },
-  { id: "build", label: "Vibe Build", eyebrow: "CASE 01", x: "42%", y: "49%" },
-  { id: "resume", label: "Resume", eyebrow: "CV", x: "74%", y: "45%" },
-  { id: "life", label: "Personal Atlas", eyebrow: "COLLECTIONS", x: "89%", y: "66%" },
-  { id: "github", label: "GitHub", eyebrow: "SOURCE", x: "25%", y: "72%" },
-  { id: "contact", label: "Contact", eyebrow: "HELLO", x: "59%", y: "73%" },
+  { id: "about", label: "Profile", eyebrow: "IDENTITY", x: "4%", y: "11%" },
+  { id: "ai", label: "Signal Lab", eyebrow: "AI DATA OPERATIONS", x: "31%", y: "9%" },
+  { id: "local", label: "City Lens", eyebrow: "LOCAL SERVICES", x: "61%", y: "15%" },
+  { id: "commerce", label: "Market Flow", eyebrow: "E COMMERCE", x: "87%", y: "9%" },
+  { id: "agriculture", label: "Field Notes", eyebrow: "SMART AGRICULTURE AI", x: "12%", y: "47%" },
+  { id: "build", label: "Build Log", eyebrow: "VIBE CODING", x: "42%", y: "49%" },
+  { id: "resume", label: "Resume", eyebrow: "CAREER", x: "74%", y: "45%" },
+  { id: "life", label: "Personal Atlas", eyebrow: "COLLECTIONS", x: "89%", y: "62%" },
+  { id: "github", label: "Source", eyebrow: "GITHUB", x: "25%", y: "68%" },
+  { id: "contact", label: "Connect", eyebrow: "HELLO", x: "59%", y: "68%" },
 ];
 
 const appMap = Object.fromEntries(apps.map((app) => [app.id, app])) as Record<DesktopApp, AppDefinition>;
@@ -369,6 +368,7 @@ const contentByApp: Record<DesktopApp, () => JSX.Element> = {
 
 const PortfolioDesk = () => {
   const [activeApp, setActiveApp] = useState<DesktopApp | null>(null);
+  const [isBooting, setIsBooting] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [time, setTime] = useState(() => new Date());
@@ -376,12 +376,14 @@ const PortfolioDesk = () => {
   const desktopRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const bootTimer = window.setTimeout(() => setIsBooting(false), 1450);
     const timer = window.setInterval(() => setTime(new Date()), 60_000);
     const media = window.matchMedia("(min-width: 721px)");
     const syncDrag = () => setCanDrag(media.matches);
     syncDrag();
     media.addEventListener("change", syncDrag);
     return () => {
+      window.clearTimeout(bootTimer);
       window.clearInterval(timer);
       media.removeEventListener("change", syncDrag);
     };
@@ -390,6 +392,7 @@ const PortfolioDesk = () => {
   const formattedTime = useMemo(() => new Intl.DateTimeFormat("zh-CN", {
     month: "numeric",
     day: "numeric",
+    weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -420,12 +423,35 @@ const PortfolioDesk = () => {
         <div className="os-signal-node"><i /><i /><i /><span>DATA SIGNAL</span></div>
       </div>
 
+      <AnimatePresence>
+        {isBooting && (
+          <motion.div
+            className="os-boot-screen"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            aria-label="正在进入 Haonan Li 的个人桌面"
+          >
+            <motion.span
+              initial={{ opacity: 0, y: 8, filter: "blur(5px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.65, delay: 0.18 }}
+            >
+              hello
+            </motion.span>
+            <motion.i
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.8, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <header className="os-menubar">
         <div className="os-menu-profile">
-          <span className="os-menu-mark"><Command size={13} /></span>
           <strong>Haonan Li</strong>
-          <span>AI Data Operator</span>
-          <span>Vibe Builder</span>
+          <span>{activeDefinition?.label ?? "Portfolio"}</span>
         </div>
         <div className="os-menu-status">
           <a href="https://github.com/l1064181273-crypto" target="_blank" rel="noreferrer" aria-label="打开 GitHub"><Github size={14} /></a>

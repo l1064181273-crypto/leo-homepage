@@ -2625,3 +2625,112 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Macxfolio migration refinement */
+.os-boot-screen {
+  position: absolute;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 20px;
+  color: rgba(255, 255, 255, 0.96);
+  background: url("../assets/macos-fluid-wallpaper.png") center center / cover no-repeat;
+  text-shadow: 0 4px 20px rgba(10, 46, 85, 0.3);
+}
+
+.os-boot-screen::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(180deg, rgba(11, 45, 82, 0.04), rgba(8, 41, 82, 0.14));
+  pointer-events: none;
+}
+
+.os-boot-screen span {
+  position: relative;
+  z-index: 1;
+  font-family: "Snell Roundhand", "Segoe Script", "STKaiti", cursive;
+  font-size: clamp(42px, 6vw, 78px);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.os-boot-screen i {
+  position: relative;
+  z-index: 1;
+  width: 116px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.88), transparent);
+  transform-origin: center;
+}
+
+.os-wallpaper {
+  filter: saturate(1.12) contrast(1.035);
+}
+
+.os-menubar {
+  height: 32px;
+  padding: 0 18px;
+  background: rgba(59, 92, 121, 0.16);
+}
+
+.os-menu-profile {
+  gap: 10px;
+}
+
+.os-menu-profile strong {
+  font-size: 12px;
+  letter-spacing: -0.02em;
+}
+
+.os-menu-profile > span:not(.os-menu-mark) {
+  font-size: 9px;
+  letter-spacing: 0.02em;
+}
+
+.os-desktop-apps {
+  inset: 32px 0 0;
+}
+
+.os-app-label {
+  font-weight: 500;
+}
+
+.os-desktop-app:focus-visible {
+  outline: none;
+}
+
+.os-desktop-app:focus-visible .os-app-art {
+  filter: drop-shadow(0 0 8px rgba(232, 252, 255, 0.78));
+}
+
+.os-desktop-app:focus-visible .os-app-label {
+  background: rgba(78, 133, 190, 0.72);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.atlas-sidebar nav button:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(82, 110, 95, 0.3);
+}
+
+.os-start-hint {
+  opacity: 0.74;
+}
+
+@media (max-width: 720px) {
+  .os-boot-screen span {
+    font-size: 48px;
+  }
+
+  .os-menubar {
+    height: 36px;
+  }
+
+  .os-desktop-apps {
+    inset: 36px 0 0;
+  }
+}
